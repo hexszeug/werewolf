@@ -15,11 +15,8 @@ class JobTest {
         }
         RecallMock recall = mock(RecallMock.class);
         Job job = new Job("job method", recall::method);
-        Job job1 = new Job("job code", new Job.Recall() {
-            @Override
-            public void execute() {
-                recall.code();
-            }
+        Job job1 = new Job("job code", () -> {
+            recall.code();
         });
 
         //when

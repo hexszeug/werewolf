@@ -7,30 +7,40 @@ import static org.junit.jupiter.api.Assertions.*;
 class SessionRegistryTest {
 
     @Test
+    void addSession() {
+        //given
+        SessionRegistry sessionRegistry = new SessionRegistry();
+
+        //when
+        Session session = new Session(sessionRegistry);
+
+        //expect
+        assertNotNull(sessionRegistry.getSession(session.getSessionID()));
+    }
+
+    @Test
     void getSession() {
         //given
         SessionRegistry sessionRegistry = new SessionRegistry();
-        Session session = new Session("test", sessionRegistry);
+        Session session = new Session(sessionRegistry);
 
         //when
 
 
         //expect
-        assertEquals(session, sessionRegistry.getSession("test"));
+        assertEquals(session, sessionRegistry.getSession(session.getSessionID()));
     }
 
     @Test
     void removeSession() {
         //given
         SessionRegistry sessionRegistry = new SessionRegistry();
-        Session session = new Session("test", sessionRegistry);
+        Session session = new Session(sessionRegistry);
 
         //when
-        sessionRegistry.removeSession("test");
+        sessionRegistry.removeSession(session.getSessionID());
 
-        //
-        assertThrows(NullPointerException.class, () -> {
-           sessionRegistry.getSession("test");
-        });
+        //expect
+        assertNull(sessionRegistry.getSession(session.getSessionID()));
     }
 }

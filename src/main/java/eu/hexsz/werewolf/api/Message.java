@@ -2,11 +2,8 @@ package eu.hexsz.werewolf.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Represents a message which can be sent to the client.
@@ -21,13 +18,11 @@ import java.util.Arrays;
  * @author hexszeug
  * */
 @Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class Message {
-    private String path;
-    private String type;
-    private Object data;
+    private final String path;
+    private final String type;
+    private final Object data;
 
     /**
      * Returns an object which when serialized corresponds the werewolf protocol
@@ -35,6 +30,10 @@ public class Message {
      * @since 1.0-SNAPSHOT
      * */
     public Object getSerializable() {
-        return new ArrayList<>(Arrays.asList(path, type, data));
+        ArrayList<Object> arrayList = new ArrayList<>();
+        arrayList.add(path);
+        arrayList.add(type);
+        arrayList.add(data);
+        return arrayList;
     }
 }

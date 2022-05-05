@@ -28,31 +28,16 @@ public class Time {
      * @since 1.0-SNAPSHOT
      * */
     public Time() {
-        //TODO inject PhaseBuilder
         night = 0;
-        phase = nightPhase(0);
+        phase = NightPhase.values()[0];
     }
 
-    private static class PhaseOutOfBoundsException extends RuntimeException {
-        public PhaseOutOfBoundsException(String message) {
-            super(message);
-        }
-    }
-
-    private NightPhase nightPhase(int ordinal) throws PhaseOutOfBoundsException {
-        try {
-            return NightPhase.values()[ordinal];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new PhaseOutOfBoundsException(String.format("NightPhase number %d doesn't exist.", ordinal));
-        }
-    }
-
-    private DayPhase dayPhase(int ordinal) throws PhaseOutOfBoundsException {
-        try {
-            return DayPhase.values()[ordinal];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new PhaseOutOfBoundsException(String.format("DayPhase number %d doesn't exist.", ordinal));
-        }
+    /**
+     * @return If it is currently night.
+     * @since 1.0-SNAPSHOT
+     * */
+    public boolean isNight() {
+        return phase instanceof NightPhase;
     }
 
 
@@ -62,17 +47,17 @@ public class Time {
      * @since 1.0-SNAPSHOT
      * */
     public void nextPhase() {
-        if (phase instanceof NightPhase) {
+        if (isNight()) {
             try {
-                phase = nightPhase(phase.ordinal() + 1);
-            } catch (PhaseOutOfBoundsException e) {
-                phase = dayPhase(0);
+                phase = NightPhase.values()[phase.ordinal() + 1];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                phase = DayPhase.values()[0];
             }
         } else {
             try {
-                phase = dayPhase(phase.ordinal() + 1);
-            } catch (PhaseOutOfBoundsException e) {
-                phase = nightPhase(0);
+                phase = DayPhase.values()[phase.ordinal() + 1];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                phase = NightPhase.values()[0];
                 night++;
             }
         }

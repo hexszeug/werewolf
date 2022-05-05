@@ -12,7 +12,11 @@ import java.util.HashMap;
  * @author hexszeug
  * */
 public class PlayerRegistry {
-    private HashMap<String, Player> players = new HashMap<>();
+    private final HashMap<String, Player> players;
+
+    public PlayerRegistry() {
+        players = new HashMap<>();
+    }
 
     /**
      * Returns an Iterable for all {@link Player}s registered in this {@code PlayerRegistry}.
@@ -29,7 +33,9 @@ public class PlayerRegistry {
      * @since 1.0-SNAPSHOT
      * */
     public void addPlayer(Player player) {
-        players.put(player.getPlayerID(), player);
+        if (player != null) {
+            players.put(player.getPlayerID(), player);
+        }
     }
 
     /**
@@ -39,12 +45,10 @@ public class PlayerRegistry {
      * @param playerID playerID of the requested {@link Player}.
      * @since 1.0-SNAPSHOT
      * */
-    public Player getPlayer(String playerID) throws NullPointerException {
-        Player player = players.get(playerID);
-        if (player == null) {
-            players.remove(playerID);
-            throw new NullPointerException(String.format("Player with id %s does not exit.", playerID));
+    public Player getPlayer(String playerID) {
+        if (playerID == null) {
+            return null;
         }
-        return player;
+        return players.get(playerID);
     }
 }

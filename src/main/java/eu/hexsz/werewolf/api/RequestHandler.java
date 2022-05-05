@@ -14,10 +14,19 @@ package eu.hexsz.werewolf.api;
 public interface RequestHandler {
 
     /**
+     * Should return the path this receiver should be bound to by a {@link Session}.
+     * Should be lowercase with {@code -} for separating words
+     * and {@code /} for separating namespaces.
+     * @return The constant path
+     * @since 1.0-SNAPSHOT
+     * */
+    String PATH();
+
+    /**
      * Should only be called by {@link Session#receive(Object)} when receiving a {@link Request}
      * bound to a certain instance of a {@link RequestHandler} implementation.
      * @param request The request made.
      * @since 1.0-SNAPSHOT
      * */
-    void receive(Request request);
+    void receive(Request request) throws IllegalRequestException;
 }

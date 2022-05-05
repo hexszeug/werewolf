@@ -18,22 +18,8 @@ class PlayerTest {
                 playerRegistry);
 
         //when
-
+        //TODO test if AutoPlayerUpdateService is called
 
         //expect
-        assertDoesNotThrow(() ->  {
-            player.setStatus(Status.AWAKE);
-        });
-        assertEquals(Status.AWAKE, player.getStatus());
-        assertThrows(SecurityException.class, () -> {
-            player.setStatus(Status.DEAD);
-        });
-        assertThrows(SecurityException.class, () -> {
-            player.setStatus(Status.DEAD, player);
-        });
-        assertDoesNotThrow(() -> {
-            player.setStatus(Status.DEAD, playerController);
-        });
-        assertEquals(Status.DEAD, player.getStatus());
     }
 }

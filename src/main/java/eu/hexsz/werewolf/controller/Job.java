@@ -1,6 +1,7 @@
 package eu.hexsz.werewolf.controller;
 
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.logging.Logger;
 
@@ -14,8 +15,8 @@ public class Job {
     private final Logger logger = Logger.getAnonymousLogger();
     //TODO make multiple loggers for different rooms
 
-    private final @Getter String name;
-    private final Recall recall;
+    private final @NonNull @Getter String name;
+    private final @NonNull Recall recall;
 
     /**
      * A {@code Job} should be given to a lower controller to start an asynchronous task.

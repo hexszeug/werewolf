@@ -27,23 +27,28 @@ public class SessionRegistry {
      * @return The requested {@link Session}.
      * @since 1.0-SNAPSHOT
      * */
-    public Session getSession(String sessionID) throws NullPointerException {
+    public Session getSession(String sessionID) {
+        if (sessionID == null) {
+            return null;
+        }
         Session session = sessions.get(sessionID);
         if (session == null) {
             removeSession(sessionID);
-            throw new NullPointerException();
+            return null;
         }
         return session;
     }
 
     /**
      * Adds the passed {@link Session} to the register.
-     * Should only be called by {@link Session#Session(String, SessionRegistry)}
+     * Should only be called by {@link Session#Session(SessionRegistry)}
      * @param session The {@code Session} to add.
      * @since 1.0-SNAPSHOT
      * */
     public void addSession(Session session) {
-        sessions.put(session.getSessionID(), session);
+        if (session != null && session.getSessionID() != null) {
+            sessions.put(session.getSessionID(), session);
+        }
     }
 
     /**
@@ -52,6 +57,8 @@ public class SessionRegistry {
      * @since 1.0-SNAPSHOT
      * */
     public void removeSession(String sessionID) {
-        sessions.remove(sessionID);
+        if (sessionID != null) {
+            sessions.remove(sessionID);
+        }
     }
 }

@@ -34,11 +34,7 @@ class PlayerRegistryTest {
         playerRegistry.addPlayer(player);
 
         //expect
-        assertDoesNotThrow(() -> {
-            assertEquals(player, playerRegistry.getPlayer("testID"));
-        });
-        assertThrows(NullPointerException.class, () -> {
-            playerRegistry.getPlayer("falseID");
-        });
+        assertEquals(player, playerRegistry.getPlayer("testID"));
+        assertNull(playerRegistry.getPlayer("falseID"));
     }
 }

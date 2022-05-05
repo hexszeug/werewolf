@@ -23,6 +23,11 @@ class TagTest {
             public String getName() {
                 return "EvalTag";
             }
+
+            @Override
+            public boolean isDeadly() {
+                return true;
+            }
         };
 
         //when
@@ -30,6 +35,8 @@ class TagTest {
 
         //expect
         assertEquals("NiceTag", niceTag.getName());
+        assertFalse(niceTag.isDeadly());
         assertEquals("EvalTag", evalTag.getName());
+        assertTrue(evalTag.isDeadly());
     }
 }

@@ -30,54 +30,50 @@ import java.util.UUID;
  * */
 //TODO implement receive() + test + sessionID stuff
 public class Session implements RequestHandler {
-    private final static String PATH = "session";
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public String PATH() {
+        return "session";
+    }
 
-    private final @Getter @NonNull String sessionID;
+    private final @Getter String sessionID;
     private @Setter Socket socket;
     private final HashMap<String, WeakReference<RequestHandler>> receiverMap;
+
+    //dependencies
+    private final @NonNull SessionRegistry sessionRegistry;
 
     /**
      * Create new {@code Session} with a random sessionID.
      * @since 1.0-SNAPSHOT
      * */
     public Session(SessionRegistry sessionRegistry) {
-        this(Base64
-                .getEncoder()
-                .encodeToString(
-                        (UUID.randomUUID().toString() + UUID.randomUUID().toString())
-                                .getBytes()
-                ),
-                sessionRegistry
+        sessionID = Base64.getEncoder().encodeToString(
+                (UUID.randomUUID().toString() + UUID.randomUUID())
+                        .getBytes()
         );
-    }
-
-    /**
-     * Create new {@code Session} with given sessionID.
-     * Should only be used for testing purposes. Prefer to use {@link Session#Session(SessionRegistry)}.
-     * @since 1.0-SNAPSHOT
-     * */
-    public Session(String sessionID, SessionRegistry sessionRegistry) {
-        this.sessionID = sessionID;
+        this.sessionRegistry = sessionRegistry;
         sessionRegistry.addSession(this);
         receiverMap = new HashMap<>();
-        bindReceiver(PATH, this);
+        bindReceiver(this);
     }
 
     /**
-     * Binds the given receiver ({@link RequestHandler}) to the given path.
+     * Binds the given receiver ({@link RequestHandler}) to its path.
      * The {@link RequestHandler#receive(Request)} will be called
      * if the session receives a request with the specified path.
      * <p>This {@code Session} will only store a {@link WeakReference} of the {@code RequestHandler}.
      * If the {@code RequestHandler} should be garbage collected it is automatically unbound.
-     * @param path The path where the receiver should be bound to.
-     *             Should be lowercase with {@code -} for separating words
-     *             and {@code /} for separating namespaces.
      * @param receiver An instance implementing {@link RequestHandler}
      *                 which should receive the request send to the specified path.
      * @since 1.0-SNAPSHOT
      * */
-    public void bindReceiver(String path, RequestHandler receiver) {
-        receiverMap.put(path, new WeakReference<>(receiver));
+    public void bindReceiver(RequestHandler receiver) {
+        if (receiver != null) {
+            receiverMap.put(receiver.PATH(), new WeakReference<>(receiver));
+        }
     }
 
     /**
@@ -86,7 +82,9 @@ public class Session implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void unbindReceiver(String path) {
-        receiverMap.remove(path);
+        if (path != null) {
+            receiverMap.remove(path);
+        }
     }
 
     /**
@@ -98,8 +96,8 @@ public class Session implements RequestHandler {
         Request request;
         try {
             request = new Request(reqObject);
-        } catch (Request.IllegalRequestException e) {
-            send(new ErrorMessage(PATH, e));
+        } catch (IllegalRequestException e) {
+            send(new ErrorMessage(PATH(), e));
             return;
         }
         String path = request.getPath();
@@ -111,7 +109,11 @@ public class Session implements RequestHandler {
             unbindReceiver(path);
             return;
         }
-        receiver.receive(request);
+        try {
+            receiver.receive(request);
+        } catch (IllegalRequestException e) {
+            send(new ErrorMessage(PATH(), e));
+        }
     }
 
     /**
@@ -120,16 +122,36 @@ public class Session implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void send(Message message) {
-        if (socket != null) {
+        if (message != null && socket != null) {
             socket.send(message.getSerializable());
         }
     }
 
     /**
      * {@inheritDoc}
-     * */
+     *
+     * @param request*/
     @Override
-    public void receive(Request request) {
-        //TODO implement
+    public void receive(Request request) throws IllegalRequestException {
+        Object data = request.getData();
+        switch (request.getType()) {
+            case "new":
+                send(new Message(PATH(), "sessionID", sessionID));
+                break;
+            case "restore":
+                if (!(data instanceof String)) {
+                    throw new IllegalRequestException("Data must be a sessionID string.", request);
+                }
+                try {
+                    Session session = sessionRegistry.getSession((String) data);
+                    socket.setSession(session);
+                    send(new Message(PATH(), "sessionID", session.getSessionID()));
+                    sessionRegistry.removeSession(sessionID);
+                } catch (NullPointerException e) {
+                    send(new Message(PATH(), "sessionID", sessionID));
+                }
+                break;
+        }
+        //TODO more session request handlers
     }
 }

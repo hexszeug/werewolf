@@ -29,19 +29,19 @@ class RequestTest {
             assertEquals("my-type", correctReq.getType());
             assertEquals(123, correctReq.getData());
         });
-        assertThrows(Request.IllegalRequestException.class, () -> {
+        assertThrows(IllegalRequestException.class, () -> {
             new Request(wrongClass);
         }, String.format("Request %s is not an array.", wrongClass));
-        assertThrows(Request.IllegalRequestException.class, () -> {
+        assertThrows(IllegalRequestException.class, () -> {
             new Request(toFewElements);
         }, String.format("Request %s has not exactly three elements.", toFewElements));
-        assertThrows(Request.IllegalRequestException.class, () -> {
+        assertThrows(IllegalRequestException.class, () -> {
             new Request(toManyElements);
         }, String.format("Request %s has not exactly three elements.", toManyElements));
-        assertThrows(Request.IllegalRequestException.class, () -> {
+        assertThrows(IllegalRequestException.class, () -> {
             new Request(noPath);
         }, String.format("The path of request %s is not a string.", noPath));
-        assertThrows(Request.IllegalRequestException.class, () -> {
+        assertThrows(IllegalRequestException.class, () -> {
             new Request(noType);
         }, String.format("The type of request %s is not a string.", noType));
     }

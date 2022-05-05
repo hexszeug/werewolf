@@ -3,6 +3,7 @@ package eu.hexsz.werewolf.player;
 import eu.hexsz.werewolf.api.Request;
 import eu.hexsz.werewolf.api.RequestHandler;
 import eu.hexsz.werewolf.api.Session;
+import eu.hexsz.werewolf.update.AutoPlayerUpdateService;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -14,18 +15,23 @@ import java.util.HashSet;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
-//TODO add more tests + add auto updater + pass requests to the playerController
-@Getter
+//TODO add more tests + add auto updater
 public class Player implements RequestHandler {
-    private final static String PATH = "game";
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public String PATH() {
+        return "game";
+    }
 
-    private final String playerID;
-    private final String nickname;
-    private final String avatar;
-    private final @NonNull Session session;
-    private @NonNull PlayerController playerController;
-    private @NonNull Status status;
-    private final HashSet<Tag> tags;
+    private final @Getter String playerID;
+    private final @Getter String nickname;
+    private final @Getter String avatar;
+    private final @Getter Session session;
+    private @Getter PlayerController playerController;
+    private @Getter Status status;
+    private final @Getter HashSet<Tag> tags;
 
     /**
      * Creates new Player. This should only be done by some kind of {@code GameSetupService}.
@@ -36,7 +42,11 @@ public class Player implements RequestHandler {
      * @param playerController The PlayerController / role of the player.
      * @since 1.0-SNAPSHOT
      * */
-    public Player(String playerID, String nickname, String avatar, Session session, PlayerController playerController,
+    public Player(String playerID,
+                  String nickname,
+                  String avatar,
+                  @NonNull Session session,
+                  @NonNull PlayerController playerController,
                   PlayerRegistry playerRegistry) {
         this.playerID = playerID;
         this.nickname = nickname;
@@ -45,7 +55,7 @@ public class Player implements RequestHandler {
         this.playerController = playerController;
         status = Status.SLEEPING;
         tags = new HashSet<>();
-        session.bindReceiver(PATH, this);
+        session.bindReceiver(this);
         playerRegistry.addPlayer(this);
     }
 
@@ -55,36 +65,21 @@ public class Player implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void setPlayerController(PlayerController playerController) {
+        if (playerController == null) {
+            return;
+        }
         this.playerController = playerController;
         //TODO inform AutoPlayerUpdateService
     }
 
     /**
-     * Sets the status of the Player. If the new status is {@link Status#DEAD} a {@link SecurityException} is raises.
-     * For killing the player you must use {@link Player#setStatus(Status, Object)}
-     * and pass the {@link PlayerController} of that player. This should only be done by the PlayerController itself.
-     * @param status The new status
-     * @see Player#setStatus(Status, Object)
+     * Sets the status of the Player and informs the {@link AutoPlayerUpdateService}.
+     * @param status The new status.
      * @since 1.0-SNAPSHOT
      * */
     public void setStatus(Status status) {
-        if (status == Status.DEAD) {
-            throw new SecurityException("Players can only be killed by their PlayerControllers.");
-        }
-        setStatus(status, playerController);
-    }
-
-    /**
-     * Sets the status of the Player.
-     * Automatically informs the {@link AutoPlayerUpdateService}.
-     * @param status The new status.
-     * @param caller Must be the object which calls the method.
-     *               If the object is not the PlayerController of the Player a {@link SecurityException} is raised.
-     * @since 1.0-SNAPSHOT
-     * */
-    public void setStatus(Status status, Object caller) {
-        if (status == Status.DEAD && !playerController.equals(caller)) {
-            throw new SecurityException("Players can only be killed by their PlayerControllers.");
+        if (status == null) {
+            return;
         }
         this.status = status;
         //TODO inform AutoPlayerUpdateService
@@ -97,7 +92,9 @@ public class Player implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void addTag(Tag tag) {
-        tags.add(tag);
+        if (tag != null) {
+            tags.add(tag);
+        }
     }
 
     /**
@@ -107,7 +104,9 @@ public class Player implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void removeTag(Tag tag) {
-        tags.remove(tag);
+        if (tag != null) {
+            tags.remove(tag);
+        }
     }
 
 
@@ -117,6 +116,6 @@ public class Player implements RequestHandler {
      * */
     @Override
     public void receive(Request request) {
-        //TODO pass request to playerController
+        playerController.receive(request);
     }
 }

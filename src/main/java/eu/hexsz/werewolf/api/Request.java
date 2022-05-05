@@ -32,29 +32,20 @@ public class Request {
      * */
     public Request(Object deserializedRequest) throws IllegalRequestException {
         if (!(deserializedRequest instanceof ArrayList)) {
-            throw new IllegalRequestException(String.format("Request %s is not an array", deserializedRequest));
+            throw new IllegalRequestException(String.format("Request %s is not an array", deserializedRequest), null);
         }
         ArrayList request = (ArrayList) deserializedRequest;
         if (request.size() != 3) {
-            throw new IllegalRequestException(String.format("Request %s has not exactly three elements.", request));
+            throw new IllegalRequestException(String.format("Request %s has not exactly three elements.", request), null);
         }
         if (!(request.get(0) instanceof String)) {
-            throw new IllegalRequestException(String.format("The path of request %s is not a string.", request));
+            throw new IllegalRequestException(String.format("The path of request %s is not a string.", request), null);
         }
         if (!(request.get(1) instanceof String)) {
-            throw new IllegalRequestException(String.format("The type of request %s is not a string.", request));
+            throw new IllegalRequestException(String.format("The type of request %s is not a string.", request), null);
         }
         this.path = (String) request.get(0);
         this.type = (String) request.get(1);
         this.data = request.get(2);
-    }
-
-    /**
-     * Is thrown if the raw request object given to {@link Request#Request(Object)} does not conform to the protocol specifications.
-     * */
-    public static class IllegalRequestException extends Exception {
-        public IllegalRequestException(String message) {
-            super(message);
-        }
     }
 }

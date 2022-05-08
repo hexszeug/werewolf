@@ -18,7 +18,7 @@ class PlayerRegistryTest {
         playerRegistry.addPlayer(player);
 
         //expect
-        for (Player player1 : playerRegistry.getPlayersIterable()) {
+        for (Player player1 : playerRegistry) {
             assertEquals(player, player1);
         }
     }

@@ -3,6 +3,7 @@ package eu.hexsz.werewolf.player;
 import eu.hexsz.werewolf.api.Session;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Used to provide central access to all {@link Player} in a certain game.
@@ -11,7 +12,7 @@ import java.util.HashMap;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
-public class PlayerRegistry {
+public class PlayerRegistry implements Iterable<Player> {
     private final HashMap<String, Player> players;
 
     public PlayerRegistry() {
@@ -19,11 +20,12 @@ public class PlayerRegistry {
     }
 
     /**
-     * Returns an Iterable for all {@link Player}s registered in this {@code PlayerRegistry}.
+     * @return An iterator over all {@link Player}s registered in this {@code PlayerRegistry}.
      * @since 1.0-SNAPSHOT
      * */
-    public Iterable<Player> getPlayersIterable() {
-        return players.values();
+    @Override
+    public Iterator<Player> iterator() {
+        return players.values().iterator();
     }
 
     /**

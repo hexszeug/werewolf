@@ -1,10 +1,9 @@
 package eu.hexsz.werewolf.controller;
 
 import eu.hexsz.werewolf.player.Player;
-import eu.hexsz.werewolf.player.PlayerController;
+import eu.hexsz.werewolf.role.NightActive;
 import eu.hexsz.werewolf.player.PlayerRegistry;
 import eu.hexsz.werewolf.player.Status;
-import eu.hexsz.werewolf.time.DayPhase;
 import eu.hexsz.werewolf.time.NightPhase;
 import eu.hexsz.werewolf.time.Time;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.mockito.invocation.InvocationOnMock;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class NightControllerTest {
@@ -20,8 +18,8 @@ class NightControllerTest {
     private Time time;
     private Player playerA;
     private Player playerB;
-    private PlayerController playerControllerA;
-    private PlayerController playerControllerB;
+    private NightActive playerControllerA;
+    private NightActive playerControllerB;
     private PlayerRegistry playerRegistry;
 
     {
@@ -29,8 +27,8 @@ class NightControllerTest {
         when(time.getNight()).thenReturn(0);
         playerA = mock(Player.class);
         playerB = mock(Player.class);
-        playerControllerA = mock(PlayerController.class);
-        playerControllerB = mock(PlayerController.class);
+        playerControllerA = mock(NightActive.class);
+        playerControllerB = mock(NightActive.class);
         when(playerA.getPlayerController()).thenReturn(playerControllerA);
         when(playerB.getPlayerController()).thenReturn(playerControllerB);
         playerRegistry = mock(PlayerRegistry.class);
@@ -75,13 +73,13 @@ class NightControllerTest {
 
             return null;
         }).when(playerControllerA).manageNightPhase(any(Job.class));
-        nightController.manageNight(new Job("night", () -> {
+        new Job("night", nightController::manageNight, () -> {
 
             //expect
             verify(playerControllerA).manageNightPhase(any(Job.class));
             verify(playerA).setStatus(Status.SLEEPING);
             verify(playerB).setStatus(Status.SLEEPING);
 
-        }));
+        }).start();
     }
 }

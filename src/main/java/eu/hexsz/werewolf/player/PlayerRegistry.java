@@ -1,6 +1,7 @@
 package eu.hexsz.werewolf.player;
 
 import eu.hexsz.werewolf.api.Session;
+import eu.hexsz.werewolf.role.PlayerController;
 
 import java.util.HashMap;
 import java.util.Iterator;

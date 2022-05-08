@@ -1,7 +1,8 @@
 package eu.hexsz.werewolf.controller;
 
 import eu.hexsz.werewolf.player.Player;
-import eu.hexsz.werewolf.player.PlayerController;
+import eu.hexsz.werewolf.role.NightActive;
+import eu.hexsz.werewolf.role.PlayerController;
 import eu.hexsz.werewolf.player.PlayerRegistry;
 import eu.hexsz.werewolf.player.Status;
 import eu.hexsz.werewolf.time.Phase;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * Controls a night. Reminds every {@link eu.hexsz.werewolf.player.PlayerController}
+ * Controls a night. Reminds every {@link PlayerController}
  * to register in which phase the player wants to wake up when the night starts.
  * Then iterates through the night phases, wakes up the players registered for this phase
  * and notifies the manager of the phase who is either
@@ -33,7 +34,7 @@ public class NightController {
     /**
      * Notifies the {@code NightController} to manage the current night.
      * It will reset the alarms and the managers
-     * and calls {@link PlayerController#setAlarms()} of every player.
+     * and calls {@link NightActive#setAlarms()} of every night active player.
      * Then it will start with the first phase of the night.
      * @param job The job to close when the night ends.
      * @since 1.0-SNAPSHOT
@@ -46,7 +47,9 @@ public class NightController {
         alarms = new HashMap<>();
         managers = new HashMap<>();
         for (Player player : playerRegistry) {
-            player.getPlayerController().setAlarms();
+            if (player.getPlayerController() instanceof NightActive) {
+                ((NightActive) player.getPlayerController()).setAlarms();
+            }
         }
         startPhase();
     }
@@ -65,19 +68,20 @@ public class NightController {
             }
             manager = players.iterator().next();
         }
+        if (!(manager.getPlayerController() instanceof NightActive)) {
+            endPhase();
+            return;
+        }
         for (Player player : players) {
             if (player.getStatus() != Status.DEAD) {
                 player.setStatus(Status.AWAKE);
             }
         }
-        manager
-                .getPlayerController()
-                .manageNightPhase(
-                        new Job(
-                                String.format("%s:%s", time.getNight(), phase.toString().toLowerCase()),
-                                this::endPhase
-                        )
-                );
+        new Job(
+                String.format("%s:%s", time.getNight(), phase.toString().toLowerCase()),
+                ((NightActive) manager.getPlayerController())::manageNightPhase,
+                this::endPhase
+        ).start();
     }
 
     private void endPhase() {

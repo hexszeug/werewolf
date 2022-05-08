@@ -17,6 +17,10 @@ public class Job {
 
     private final @NonNull @Getter String name;
     private final @NonNull Recall recall;
+    private final @NonNull Start start;
+
+    private @Getter boolean done;
+    private @Getter boolean running;
 
     /**
      * A {@code Job} should be given to a lower controller to start an asynchronous task.
@@ -27,10 +31,19 @@ public class Job {
      * @param recall method the job calls when {@link Job#done()} is run.
      * @since 1.0-SNAPSHOT
      * */
-    public Job(String name, Recall recall) {
+    public Job(String name, Start start, Recall recall) {
         this.name = name;
+        this.start = start;
         this.recall = recall;
-        logger.info(String.format("[%s] Started job", this.name));
+        running = false;
+        done = false;
+    }
+
+    /**
+     * A method which is called when a job starts.
+     * */
+    public interface Start {
+        void execute(Job job);
     }
 
     /**
@@ -49,6 +62,16 @@ public class Job {
      * */
     public void done() {
         logger.info(String.format("[%s] Finished job", name));
+        done = true;
         recall.execute();
+    }
+
+    /**
+     * Should be called by the creator of the job to start the job.
+     * */
+    public void start() {
+        logger.info(String.format("[%s] Started job", this.name));
+        running = true;
+        start.execute(this);
     }
 }

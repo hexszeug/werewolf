@@ -1,5 +1,7 @@
 package eu.hexsz.werewolf.player;
 
+import eu.hexsz.werewolf.role.PlayerController;
+
 /**
  * {@code Tags} can be used to hold custom information in a {@link Player}.
  * One player can hold zero to infinite tags.

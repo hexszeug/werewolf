@@ -20,7 +20,7 @@ public class GameController {
 
 
     /**
-     * Is called by {@link GameSetupService} after all necessary objects
+     * Is called by {@link GameFactory} after all necessary objects
      * for the game are created to start the game logic.
      * @param job The job to close when the game ends.
      * @since 1.0-SNAPSHOT
@@ -42,10 +42,10 @@ public class GameController {
     }
 
     private void startNight() {
-        nightController.manageNight(new Job("night:" + time.getNight(), this::startDay));
+        new Job("night:" + time.getNight(), nightController::manageNight, this::startDay).start();
     }
 
     private void startDay() {
-        dayController.manageDay(new Job("day:" + time.getNight(), this::startNight));
+        new Job("day:" + time.getNight(), dayController::manageDay, this::startNight).start();
     }
 }

@@ -1,9 +1,9 @@
 package eu.hexsz.werewolf.player;
 
 import eu.hexsz.werewolf.api.Session;
+import eu.hexsz.werewolf.role.PlayerController;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class PlayerTest {

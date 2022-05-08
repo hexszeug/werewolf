@@ -1,8 +1,10 @@
 package eu.hexsz.werewolf.player;
 
+import eu.hexsz.werewolf.api.IllegalRequestException;
 import eu.hexsz.werewolf.api.Request;
 import eu.hexsz.werewolf.api.RequestHandler;
 import eu.hexsz.werewolf.api.Session;
+import eu.hexsz.werewolf.role.PlayerController;
 import eu.hexsz.werewolf.update.AutoPlayerUpdateService;
 import lombok.Getter;
 import lombok.NonNull;
@@ -115,7 +117,7 @@ public class Player implements RequestHandler {
      * {@inheritDoc}
      * */
     @Override
-    public void receive(Request request) {
-        playerController.receive(request);
+    public void receive(Request request) throws IllegalRequestException {
+        playerController.handle(request);
     }
 }

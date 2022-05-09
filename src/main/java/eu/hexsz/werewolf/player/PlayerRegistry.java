@@ -31,7 +31,7 @@ public class PlayerRegistry implements Iterable<Player> {
 
     /**
      * Registers a new Player in the registry.
-     * Should only be called by {@link Player#Player(String, String, String, Session, PlayerController, PlayerRegistry)}.
+     * Should only be called by {@link Player#Player(String, String, String, Session, PlayerController, PlayerRegistry, eu.hexsz.werewolf.update.AutoPlayerUpdateService)}.
      * @param player The player to register.
      * @since 1.0-SNAPSHOT
      * */

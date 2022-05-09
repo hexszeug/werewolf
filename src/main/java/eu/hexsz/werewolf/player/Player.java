@@ -17,14 +17,15 @@ import java.util.HashSet;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
-//TODO add more tests + add auto updater
+//TODO add more tests
 public class Player implements RequestHandler {
+    public static final String PATH = "game";
     /**
      * {@inheritDoc}
      * */
     @Override
     public String PATH() {
-        return "game";
+        return PATH;
     }
 
     private final @Getter String playerID;
@@ -35,6 +36,9 @@ public class Player implements RequestHandler {
     private @Getter Status status;
     private final @Getter HashSet<Tag> tags;
 
+    //dependencies
+    private final AutoPlayerUpdateService autoPlayerUpdateService;
+
     /**
      * Creates new Player. This should only be done by some kind of {@code GameSetupService}.
      * @param playerID Same as the userID which is generated when a client joins a room.
@@ -42,6 +46,7 @@ public class Player implements RequestHandler {
      * @param avatar The avatar of the player either as a Base64 image or as an url referring to an image.
      * @param session The session the player is bound to.
      * @param playerController The PlayerController / role of the player.
+     * @param autoPlayerUpdateService
      * @since 1.0-SNAPSHOT
      * */
     public Player(String playerID,
@@ -49,12 +54,14 @@ public class Player implements RequestHandler {
                   String avatar,
                   @NonNull Session session,
                   @NonNull PlayerController playerController,
-                  PlayerRegistry playerRegistry) {
+                  PlayerRegistry playerRegistry,
+                  AutoPlayerUpdateService autoPlayerUpdateService) {
         this.playerID = playerID;
         this.nickname = nickname;
         this.avatar = avatar;
         this.session = session;
         this.playerController = playerController;
+        this.autoPlayerUpdateService = autoPlayerUpdateService;
         status = Status.SLEEPING;
         tags = new HashSet<>();
         session.bindReceiver(this);
@@ -67,11 +74,11 @@ public class Player implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void setPlayerController(PlayerController playerController) {
-        if (playerController == null) {
+        if (playerController == null || playerController == this.playerController) {
             return;
         }
         this.playerController = playerController;
-        //TODO inform AutoPlayerUpdateService
+        autoPlayerUpdateService.onRoleChange(this);
     }
 
     /**
@@ -80,11 +87,12 @@ public class Player implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void setStatus(Status status) {
-        if (status == null) {
+        if (status == null || status == this.status) {
             return;
         }
+        Status old = this.status;
         this.status = status;
-        //TODO inform AutoPlayerUpdateService
+        autoPlayerUpdateService.onStatusChange(this, old);
     }
 
     /**

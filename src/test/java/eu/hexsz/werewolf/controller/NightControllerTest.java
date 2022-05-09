@@ -69,7 +69,7 @@ class NightControllerTest {
 
             //when
             when(time.isNight()).thenReturn(false);
-            ((Job) invocation.getArgument(0)).done();
+            invocation.getArgument(0, Job.class).done();
 
             return null;
         }).when(playerControllerA).manageNightPhase(any(Job.class));

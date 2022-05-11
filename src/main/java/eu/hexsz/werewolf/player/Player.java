@@ -45,22 +45,21 @@ public class Player implements RequestHandler {
      * @param nickname The nickname of the player specified by the client.
      * @param avatar The avatar of the player either as a Base64 image or as an url referring to an image.
      * @param session The session the player is bound to.
-     * @param playerController The PlayerController / role of the player.
      * @param autoPlayerUpdateService
      * @since 1.0-SNAPSHOT
      * */
-    public Player(String playerID,
-                  String nickname,
-                  String avatar,
-                  @NonNull Session session,
-                  @NonNull PlayerController playerController,
-                  PlayerRegistry playerRegistry,
-                  AutoPlayerUpdateService autoPlayerUpdateService) {
+    public Player(
+            String playerID,
+            String nickname,
+            String avatar,
+            Session session,
+            PlayerRegistry playerRegistry,
+            AutoPlayerUpdateService autoPlayerUpdateService
+    ) {
         this.playerID = playerID;
         this.nickname = nickname;
         this.avatar = avatar;
         this.session = session;
-        this.playerController = playerController;
         this.autoPlayerUpdateService = autoPlayerUpdateService;
         status = Status.SLEEPING;
         tags = new HashSet<>();
@@ -78,7 +77,7 @@ public class Player implements RequestHandler {
             return;
         }
         this.playerController = playerController;
-        autoPlayerUpdateService.onRoleChange(this);
+        autoPlayerUpdateService.onRoleChange(this); //must be called after the pC is set
     }
 
     /**
@@ -126,6 +125,8 @@ public class Player implements RequestHandler {
      * */
     @Override
     public void receive(Request request) throws IllegalRequestException {
-        playerController.handle(request);
+        if (playerController != null) {
+            playerController.handle(request);
+        }
     }
 }

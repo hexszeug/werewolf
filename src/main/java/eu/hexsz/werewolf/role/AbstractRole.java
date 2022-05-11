@@ -33,7 +33,10 @@ public abstract class AbstractRole implements PlayerController {
         }
         switch (request.getType()) {
             //TODO handle day actions
-            default: throw new IllegalRequestException("Request type is not a method.", request);
+            default: throw new IllegalRequestException(
+                    String.format("Request type \"%s\" is not a method.", request.getType()),
+                    request
+            );
         }
     }
 }

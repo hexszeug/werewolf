@@ -8,12 +8,12 @@ public class IOSession extends Session {
     private final String fakeID;
 
     //dependencies
-    private final @NonNull IOSocketService IOSocketService;
+    private final @NonNull IOSocketService ioSocketService;
 
-    public IOSession(String fakeID, IOSocketService IOSocketService) {
-        super(IOSocketService);
+    public IOSession(String fakeID, IOSocketService ioSocketService) {
+        super(ioSocketService);
         this.fakeID = fakeID;
-        this.IOSocketService = IOSocketService;
+        this.ioSocketService = ioSocketService;
     }
 
     @Override
@@ -23,6 +23,8 @@ public class IOSession extends Session {
 
     @Override
     public void send(Message message) {
-        IOSocketService.send(this, message.getSerializable());
+        if (message != null) {
+            ioSocketService.send(this, message.getSerializable());
+        }
     }
 }

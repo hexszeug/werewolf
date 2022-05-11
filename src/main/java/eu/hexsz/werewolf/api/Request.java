@@ -21,6 +21,7 @@ public class Request {
     private final String path;
     private final String type;
     private final Object data;
+    private final Object serializable;
 
     /**
      * Creates a {@code Request} instance from {@code deserializedRequest}
@@ -47,5 +48,6 @@ public class Request {
         this.path = (String) request.get(0);
         this.type = (String) request.get(1);
         this.data = request.get(2);
+        this.serializable = deserializedRequest;
     }
 }

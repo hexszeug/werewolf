@@ -2,10 +2,7 @@ package eu.hexsz.werewolf.test;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import eu.hexsz.werewolf.api.IllegalRequestException;
-import eu.hexsz.werewolf.api.Request;
-import eu.hexsz.werewolf.api.Session;
-import eu.hexsz.werewolf.api.SessionRegistry;
+import eu.hexsz.werewolf.api.*;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -38,7 +35,7 @@ public class IOSocketService extends SessionRegistry {
             while (true) {
                 receive(scanner.nextLine());
             }
-        }).start();
+        }, "io-socket-service-listener").start();
     }
 
     private void receive(String messageStr) {
@@ -48,10 +45,8 @@ public class IOSocketService extends SessionRegistry {
             print("Wrong syntax! Use: <sessionID>: <path> <type> <data>");
             return;
         }
-        Session receiver;
-        try {
-            receiver = IOGameStart.IO_SOCKET_SERVICE.getSession(matcher.group(1));
-        } catch (NullPointerException e) {
+        Session receiver = IOGameStart.IO_SOCKET_SERVICE.getSession(matcher.group(1));
+        if (receiver == null) {
             print("Session does not exist!");
             return;
         }
@@ -62,20 +57,13 @@ public class IOSocketService extends SessionRegistry {
             print("Wrong data syntax! " +  e.getLocalizedMessage());
             return;
         }
-        try {
-            receiver.receive(
-                    new Request(
-                            new ArrayList<>(Arrays.asList(
-                                    matcher.group(2),
-                                    matcher.group(3),
-                                    data
-                            ))
-                    )
-            );
-        } catch (IllegalRequestException e) {
-            print(e.getLocalizedMessage());
-            return;
-        }
+        receiver.receive(
+                new ArrayList<>(Arrays.asList(
+                        matcher.group(2),
+                        matcher.group(3),
+                        data
+                ))
+        );
     }
 
     private void print(String x) {

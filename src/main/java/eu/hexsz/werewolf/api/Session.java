@@ -93,23 +93,24 @@ public class Session implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void receive(Object reqObject) {
-        Request request;
         try {
+            Request request;
             request = new Request(reqObject);
-        } catch (IllegalRequestException e) {
-            send(new ErrorMessage(PATH(), e));
-            return;
-        }
-        String path = request.getPath();
-        if (!receiverMap.containsKey(path)) {
-            return;
-        }
-        RequestHandler receiver = receiverMap.get(path).get();
-        if (receiver == null) {
-            unbindReceiver(path);
-            return;
-        }
-        try {
+            String path = request.getPath();
+            if (!receiverMap.containsKey(path)) {
+                throw new IllegalRequestException(
+                        String.format("No receiver is bound to path \"%s\".", path),
+                        request
+                );
+            }
+            RequestHandler receiver = receiverMap.get(path).get();
+            if (receiver == null) {
+                unbindReceiver(path);
+                throw new IllegalRequestException(
+                        String.format("No receiver is bound to path \"%s\".", path),
+                        request
+                );
+            }
             receiver.receive(request);
         } catch (IllegalRequestException e) {
             send(new ErrorMessage(PATH(), e));
@@ -151,6 +152,11 @@ public class Session implements RequestHandler {
                     send(new Message(PATH(), "sessionID", sessionID));
                 }
                 break;
+            default:
+                throw new IllegalRequestException(
+                        String.format("Request type \"%s\" is not a method.", request.getType()),
+                        request
+                );
         }
         //TODO more session request handlers
     }

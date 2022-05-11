@@ -61,7 +61,11 @@ public class Job {
      * @since 1.0-SNAPSHOT
      * */
     public void done() {
+        if (!running || done) {
+            return;
+        }
         logger.info(String.format("[%s] Finished job", name));
+        running = false;
         done = true;
         recall.execute();
     }
@@ -70,6 +74,9 @@ public class Job {
      * Should be called by the creator of the job to start the job.
      * */
     public void start() {
+        if (running || done) {
+            return;
+        }
         logger.info(String.format("[%s] Started job", this.name));
         running = true;
         start.execute(this);

@@ -10,10 +10,10 @@ import lombok.Getter;
  * @author hexszeug
  * */
 public class IllegalRequestException extends Exception {
-    private final @Getter Request request;
+    private final @Getter Object request;
 
     public IllegalRequestException(String message, Request request) {
         super(message);
-        this.request = request;
+        this.request = request.getSerializable();
     }
 }

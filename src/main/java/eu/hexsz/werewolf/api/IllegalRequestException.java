@@ -14,6 +14,6 @@ public class IllegalRequestException extends Exception {
 
     public IllegalRequestException(String message, Request request) {
         super(message);
-        this.request = request.getSerializable();
+        this.request = (request == null) ? null : request.getSerializable();
     }
 }

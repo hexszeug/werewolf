@@ -76,8 +76,9 @@ public class Player implements RequestHandler {
         if (playerController == null || playerController == this.playerController) {
             return;
         }
+        PlayerController old = this.playerController;
         this.playerController = playerController;
-        autoPlayerUpdateService.onRoleChange(this); //must be called after the pC is set
+        autoPlayerUpdateService.onRoleChange(this, old); //must be called after the pC is set
     }
 
     /**
@@ -91,7 +92,7 @@ public class Player implements RequestHandler {
         }
         Status old = this.status;
         this.status = status;
-        autoPlayerUpdateService.onStatusChange(this, old);
+        autoPlayerUpdateService.onStatusChange(this, old); //must be called after the status is set
     }
 
     /**

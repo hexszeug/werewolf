@@ -165,9 +165,26 @@ class AutoPlayerUpdateServiceTest {
         AutoPlayerUpdateService autoPlayerUpdateService = new AutoPlayerUpdateService(playerRegistry);
 
         //when
-        autoPlayerUpdateService.onRoleChange(player1);
+        autoPlayerUpdateService.onRoleChange(player1, player2.getPlayerController());
+        autoPlayerUpdateService.onRoleChange(player3, null);
 
         //expect
         verify(session1).send(any(Message.class));
+        verify(session3, times(0)).send(any(Message.class));
+    }
+
+    @Test
+    void onPlayerCreated() {
+        //given
+        prepareMocks();
+        AutoPlayerUpdateService autoPlayerUpdateService = new AutoPlayerUpdateService(playerRegistry);
+
+        //when
+        autoPlayerUpdateService.onPlayerCreated(player1);
+
+        //expect
+        verify(session1).send(any(Message.class));
+        verify(session2).send(any(Message.class));
+        verify(session3).send(any(Message.class));
     }
 }

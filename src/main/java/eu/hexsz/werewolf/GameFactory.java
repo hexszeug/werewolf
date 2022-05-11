@@ -65,7 +65,9 @@ public class GameFactory {
                         default -> new Villager();
                     }
             );
-
+        }
+        for (Player player : playerRegistry) {
+            autoPlayerUpdateService.onPlayerCreated(player);
         }
         new Job("game", gameController::startGame, null).start(); //TODO handle game end
     }

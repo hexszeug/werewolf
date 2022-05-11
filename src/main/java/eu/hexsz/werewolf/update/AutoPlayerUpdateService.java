@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
  * Listens on {@link Player#setStatus(Status)} and {@link Player#setPlayerController(PlayerController)}
  * and automatically updates all clients with the new information.
  * @see AutoPlayerUpdateService#onStatusChange(Player, Status)
- * @see AutoPlayerUpdateService#onRoleChange(Player)
+ * @see AutoPlayerUpdateService#onRoleChange(Player, PlayerController)
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
@@ -85,8 +85,8 @@ public class AutoPlayerUpdateService {
      * Listens of {@link Player#setPlayerController(PlayerController)} and informs the client about his new role.
      * @since 1.0-SNAPSHOT
      * */
-    public void onRoleChange(Player updatedPlayer) {
-        if (updatedPlayer == null) {
+    public void onRoleChange(Player updatedPlayer, PlayerController oldRole) {
+        if (updatedPlayer == null || oldRole == null) {
             return;
         }
         updatedPlayer
@@ -96,5 +96,25 @@ public class AutoPlayerUpdateService {
                                 .setRole(updatedPlayer.getPlayerController())
                                 .build()
                 );
+    }
+
+    /**
+     * Is called once for each Player when the {@link eu.hexsz.werewolf.GameFactory} created all players.
+     * @since 1.0-SNAPSHOT
+     * */
+    public void onPlayerCreated(Player createdPlayer) {
+        Message message = new PlayerUpdateBuilder(createdPlayer)
+                .setStatus(createdPlayer.getStatus())
+                .build();
+        for (Player player : playerRegistry) {
+            player.getSession().send(
+                    (player == createdPlayer) ?
+                            new PlayerUpdateBuilder(createdPlayer)
+                                    .setStatus(createdPlayer.getStatus())
+                                    .setRole(createdPlayer.getPlayerController())
+                                    .build()
+                            : message
+            );
+        }
     }
 }

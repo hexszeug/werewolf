@@ -20,10 +20,10 @@ public class IOGameStart {
 //        setupExternalSocket(1234);
 
         ArrayList<Session> sessions = new ArrayList<>();
-        for (char c : "abcdef".toCharArray()) {
+        for (char c : "abc".toCharArray()) {
             IOSession session = new IOSession(String.valueOf(c), IO_SOCKET_SERVICE);
             IO_SOCKET_SERVICE.addSession(session);
-            session.send(new Message("session", "sessionID", session.getSessionID()));
+            session.send(new Message("session(debug)", "sessionID", session.getSessionID()));
             sessions.add(session);
         }
 

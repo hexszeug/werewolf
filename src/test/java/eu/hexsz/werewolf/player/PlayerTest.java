@@ -16,8 +16,14 @@ class PlayerTest {
         PlayerRegistry playerRegistry = mock(PlayerRegistry.class);
         PlayerController playerController = mock(PlayerController.class);
         AutoPlayerUpdateService autoPlayerUpdateService = mock(AutoPlayerUpdateService.class);
-        Player player = new Player("test", "test", "test", session, playerController,
-                playerRegistry, autoPlayerUpdateService);
+        Player player = new Player(
+                "test",
+                "test",
+                "test",
+                session,
+                playerRegistry,
+                autoPlayerUpdateService
+        );
 
         //when
         //TODO test if AutoPlayerUpdateService is called

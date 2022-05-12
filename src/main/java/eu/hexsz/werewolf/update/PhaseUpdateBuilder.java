@@ -25,10 +25,6 @@ public class PhaseUpdateBuilder {
         if (phase == null) {
             return null;
         }
-        return new Message(Player.PATH, "phase",
-                new ClassNameSerializer(phase).value()
-                        + "."
-                        + phase
-        );
+        return new Message(Player.PATH, "phase", phase.toString());
     }
 }

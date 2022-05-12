@@ -1,5 +1,9 @@
 package eu.hexsz.werewolf.time;
 
+import eu.hexsz.werewolf.api.Message;
+import eu.hexsz.werewolf.player.Player;
+import eu.hexsz.werewolf.player.PlayerRegistry;
+import eu.hexsz.werewolf.update.PhaseUpdateBuilder;
 import lombok.Getter;
 
 /**
@@ -19,6 +23,9 @@ public class Time {
     private @Getter int night;
     private @Getter Phase phase;
 
+    //dependencies
+    private final PlayerRegistry playerRegistry;
+
     /**
      * Initialize new {@code Time} instance with default values:
      * <ul>
@@ -27,7 +34,8 @@ public class Time {
      * </ul>
      * @since 1.0-SNAPSHOT
      * */
-    public Time() {
+    public Time(PlayerRegistry playerRegistry) {
+        this.playerRegistry = playerRegistry;
         night = 0;
         phase = NightPhase.values()[0];
     }
@@ -48,19 +56,22 @@ public class Time {
      * */
     public void nextPhase() {
         if (isNight()) {
-            try {
+            if (NightPhase.values().length > phase.ordinal() + 1) {
                 phase = NightPhase.values()[phase.ordinal() + 1];
-            } catch (ArrayIndexOutOfBoundsException e) {
+            } else {
                 phase = DayPhase.values()[0];
             }
         } else {
-            try {
+            if (DayPhase.values().length > phase.ordinal() + 1) {
                 phase = DayPhase.values()[phase.ordinal() + 1];
-            } catch (ArrayIndexOutOfBoundsException e) {
+            } else {
                 phase = NightPhase.values()[0];
                 night++;
             }
         }
-        //TODO send phase update
+        Message message = new PhaseUpdateBuilder(phase).build();
+        for (Player player : playerRegistry) {
+            player.getSession().send(message);
+        }
     }
 }

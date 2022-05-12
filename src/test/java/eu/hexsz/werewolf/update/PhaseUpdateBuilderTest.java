@@ -22,12 +22,12 @@ class PhaseUpdateBuilderTest {
         //expect
         assertEquals("game", message1.getPath());
         assertEquals("phase", message1.getType());
-        assertEquals("NIGHT_PHASE.WEREWOLVES", message1.getData());
+        assertEquals("WEREWOLVES", message1.getData());
         assertEquals("game", message2.getPath());
         assertEquals("phase", message2.getType());
-        assertEquals("DAY_PHASE.DEAD_REVEAL", message2.getData());
+        assertEquals("DEAD_REVEAL", message2.getData());
         assertEquals("game", message3.getPath());
         assertEquals("phase", message3.getType());
-        assertEquals("DAY_PHASE.ACCUSING", message3.getData());
+        assertEquals("ACCUSING", message3.getData());
     }
 }

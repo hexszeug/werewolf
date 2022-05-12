@@ -1,5 +1,6 @@
 package eu.hexsz.werewolf;
 
+import eu.hexsz.werewolf.api.Message;
 import eu.hexsz.werewolf.api.Session;
 import eu.hexsz.werewolf.controller.*;
 import eu.hexsz.werewolf.player.Player;
@@ -8,6 +9,7 @@ import eu.hexsz.werewolf.role.standard.Villager;
 import eu.hexsz.werewolf.role.standard.Werewolf;
 import eu.hexsz.werewolf.time.Time;
 import eu.hexsz.werewolf.update.AutoPlayerUpdateService;
+import eu.hexsz.werewolf.update.PhaseUpdateBuilder;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -42,8 +44,8 @@ public class GameFactory {
             return;
         }
         built = true;
-        Time time = new Time();
         PlayerRegistry playerRegistry = new PlayerRegistry();
+        Time time = new Time(playerRegistry);
         AutoPlayerUpdateService autoPlayerUpdateService = new AutoPlayerUpdateService(playerRegistry);
         NightController nightController = new NightController(time, playerRegistry);
         DayController dayController = new DayController(time);
@@ -66,8 +68,10 @@ public class GameFactory {
                     }
             );
         }
+        Message phaseMessage = new PhaseUpdateBuilder(time.getPhase()).build();
         for (Player player : playerRegistry) {
             autoPlayerUpdateService.onPlayerCreated(player);
+            player.getSession().send(phaseMessage);
         }
         new Job("game", gameController::startGame, null).start(); //TODO handle game end
     }

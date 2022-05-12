@@ -93,7 +93,8 @@ class AutoPlayerUpdateServiceTest {
         }).when(session1).send(any(Message.class));
 
         playerRegistry = mock(PlayerRegistry.class);
-        when(playerRegistry.iterator()).thenReturn(
+        when(playerRegistry.iterator()).thenAnswer(
+                (InvocationOnMock invocation) ->
                 Arrays.asList(player1, player2, player3).iterator()
         );
     }

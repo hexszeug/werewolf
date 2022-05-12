@@ -140,17 +140,14 @@ public class Session implements RequestHandler {
                 send(new Message(PATH(), "sessionID", sessionID));
                 break;
             case "restore":
-                if (!(data instanceof String)) {
-                    throw new IllegalRequestException("Data must be a sessionID string.", request);
-                }
-                try {
-                    Session session = sessionRegistry.getSession((String) data);
-                    socket.setSession(session);
-                    send(new Message(PATH(), "sessionID", session.getSessionID()));
-                    sessionRegistry.removeSession(sessionID);
-                } catch (NullPointerException e) {
+                Session session = sessionRegistry.getSession(request.getData(String.class));
+                if (session == null) {
                     send(new Message(PATH(), "sessionID", sessionID));
+                    break;
                 }
+                socket.setSession(session);
+                send(new Message(PATH(), "sessionID", session.getSessionID()));
+                sessionRegistry.removeSession(sessionID);
                 break;
             default:
                 throw new IllegalRequestException(

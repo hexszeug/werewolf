@@ -12,7 +12,6 @@ import java.util.logging.Logger;
  * @author hexszeug
  * */
 public class Job {
-    private final Logger logger = Logger.getAnonymousLogger();
     //TODO make multiple loggers for different rooms
 
     private final @NonNull @Getter String name;
@@ -64,7 +63,7 @@ public class Job {
         if (!running || done) {
             return;
         }
-        logger.info(String.format("[%s] Finished job", name));
+        System.out.println(String.format("[%s] Finished job", name));
         running = false;
         done = true;
         recall.execute();
@@ -77,7 +76,7 @@ public class Job {
         if (running || done) {
             return;
         }
-        logger.info(String.format("[%s] Started job", this.name));
+        System.out.println(String.format("[%s] Started job", this.name));
         running = true;
         start.execute(this);
     }

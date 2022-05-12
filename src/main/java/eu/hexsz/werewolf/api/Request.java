@@ -50,4 +50,19 @@ public class Request {
         this.data = request.get(2);
         this.serializable = deserializedRequest;
     }
+
+    /**
+     * Casts the data to the passed class.
+     * @param clazz The class to cast the data to.
+     * @return The data cast to the given class.
+     * @throws IllegalRequestException If the data cannot be cast.
+     * @since 1.0-SNAPSHOT
+     * */
+    public <T> T getData(Class<T> clazz) throws IllegalRequestException {
+        if (clazz.isInstance(data)) {
+            return clazz.cast(data);
+        }
+        throw new IllegalRequestException(
+                String.format("The data of the request is not of type %s.", clazz.getSimpleName()), this);
+    }
 }

@@ -1,6 +1,7 @@
 package eu.hexsz.werewolf.player;
 
 import eu.hexsz.werewolf.role.PlayerController;
+import lombok.Getter;
 
 /**
  * {@code Tags} can be used to hold custom information in a {@link Player}.
@@ -11,20 +12,22 @@ import eu.hexsz.werewolf.role.PlayerController;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
+@Getter
 public abstract class Tag {
-    /**
-     * Should return a constant. If a {@link Player} holds a tag which {@code isDeadly()} returns true,
-     * the player will be killed in the {@link eu.hexsz.werewolf.time.DayPhase#DEAD_REVEAL} phase.
-     * @since 1.0-SNAPSHOT
-     * */
-    public abstract boolean isDeadly();
+
+    private final String name;
+
+    public Tag() {
+        name = this.getClass().getSimpleName();
+    }
 
     /**
-     * Returns the name of the {@code Tag}. Defaults to the simple class name.
-     * Should be overwritten with a constant return when creating a tag with an uninformative class name.
+     * Returns if the Player holding this tag should be killed
+     * in {@link eu.hexsz.werewolf.time.DayPhase#DEAD_REVEAL Phase#DEAD_REVEAL}.
+     * @return Default false. Can be overwritten to return true.
      * @since 1.0-SNAPSHOT
      * */
-    public String getName() {
-        return this.getClass().getSimpleName();
+    public boolean isDeadly() {
+        return false;
     }
 }

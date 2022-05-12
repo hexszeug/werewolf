@@ -3,6 +3,8 @@ package eu.hexsz.werewolf.player;
 import eu.hexsz.werewolf.api.Session;
 import eu.hexsz.werewolf.role.PlayerController;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 

@@ -24,7 +24,7 @@ public class PlayerUpdateBuilder {
     private Player player;
     private Status status;
     private PlayerController role;
-    private @Setter(AccessLevel.NONE) ArrayList<Tag> tags;
+    private final ArrayList<Tag> tags;
 
     public PlayerUpdateBuilder(Player player) {
         this.player = player;
@@ -43,12 +43,19 @@ public class PlayerUpdateBuilder {
             data.put("role", new ClassNameSerializer(role).value());
         }
         if (!tags.isEmpty()) {
-            data.put("tags", "not yet implemented");
+            data.put("tags", tags);
         }
         if (data.isEmpty()) {
             return null;
         }
         data.put("playerID", player.getPlayerID());
         return new Message(Player.PATH, "player", data);
+    }
+
+    public PlayerUpdateBuilder addTag(Tag tag) {
+        if (tag != null) {
+            tags.add(tag);
+        }
+        return this;
     }
 }

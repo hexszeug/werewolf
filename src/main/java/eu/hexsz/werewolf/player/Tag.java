@@ -1,6 +1,7 @@
 package eu.hexsz.werewolf.player;
 
 import eu.hexsz.werewolf.role.PlayerController;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 /**
@@ -12,6 +13,7 @@ import lombok.Getter;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
+@EqualsAndHashCode
 @Getter
 public abstract class Tag {
 

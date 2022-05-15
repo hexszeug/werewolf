@@ -47,8 +47,9 @@ public class NightController {
         alarms = new HashMap<>();
         managers = new HashMap<>();
         for (Player player : playerRegistry) {
-            if (player.getPlayerController() instanceof NightActive) {
-                ((NightActive) player.getPlayerController()).setAlarms();
+            if (player.getPlayerController() instanceof NightActive nightActive
+                    && player.getStatus() != Status.DEAD) {
+                nightActive.setAlarms();
             }
         }
         startPhase();

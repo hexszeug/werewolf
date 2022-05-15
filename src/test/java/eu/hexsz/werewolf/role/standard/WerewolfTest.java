@@ -8,6 +8,7 @@ import eu.hexsz.werewolf.controller.Job;
 import eu.hexsz.werewolf.controller.NightController;
 import eu.hexsz.werewolf.player.Player;
 import eu.hexsz.werewolf.player.PlayerRegistry;
+import eu.hexsz.werewolf.player.Status;
 import eu.hexsz.werewolf.time.NightPhase;
 import eu.hexsz.werewolf.time.Time;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ class WerewolfTest {
         Time time = mock(Time.class);
         werewolf = new Werewolf(player, playerRegistry, nightController, time);
         when(player.getPlayerID()).thenReturn("a");
+        when(player.getStatus()).thenReturn(Status.AWAKE);
         when(player.getPlayerController()).thenReturn(werewolf);
         when(player.getSession()).thenReturn(session);
         when(playerRegistry.iterator()).thenAnswer(
@@ -97,13 +99,30 @@ class WerewolfTest {
 
         //when
         werewolf.handle(new Request(new ArrayList<>(Arrays.asList("game", "werewolf/point", "a"))));
+        assertThrows(
+                IllegalRequestException.class,
+                () -> werewolf.handle(new Request(new ArrayList<>(Arrays.asList("game", "werewolf/point", "q"))))
+        );
 
         //expect
         assertNull(werewolf.getCurrentTarget());
-        verify(session).send(any(Message.class));
-        verify(playerRegistry).getPlayer("a");
+        verify(player, times(4)).getStatus();
+        verify(session, times(1)).send(any(Message.class));
+        verify(playerRegistry, times(1)).getPlayer("a");
         verify(playerRegistry, times(3)).iterator();
-        verify(player, times(5)).getPlayerController();
-        verify(job).done();
+        verify(player, times(2)).getPlayerController();
+        verify(job, times(1)).done();
+    }
+
+    @Test
+    void werewolfVictim() {
+        //given
+        Werewolf.WerewolfVictim werewolfVictim = new Werewolf.WerewolfVictim();
+
+        //when
+
+
+        //expect
+        assertTrue(werewolfVictim.isDeadly());
     }
 }

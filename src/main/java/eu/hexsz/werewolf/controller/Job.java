@@ -2,6 +2,7 @@ package eu.hexsz.werewolf.controller;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import java.util.logging.Logger;
 
@@ -14,9 +15,9 @@ import java.util.logging.Logger;
 public class Job {
     //TODO make multiple loggers for different rooms
 
-    private final @NonNull @Getter String name;
-    private final @NonNull Recall recall;
-    private final @NonNull Start start;
+    private final @Getter String name;
+    private @NonNull @Setter Recall recall;
+    private @NonNull @Setter Start start;
 
     private @Getter boolean done;
     private @Getter boolean running;
@@ -59,25 +60,27 @@ public class Job {
      * Marks the job as completed and notifies the creator of the job.
      * @since 1.0-SNAPSHOT
      * */
-    public void done() {
+    public Job done() {
         if (!running || done) {
-            return;
+            return this;
         }
         System.out.println(String.format("[%s] Finished job", name));
         running = false;
         done = true;
         recall.execute();
+        return this;
     }
 
     /**
      * Should be called by the creator of the job to start the job.
      * */
-    public void start() {
+    public Job start() {
         if (running || done) {
-            return;
+            return this;
         }
         System.out.println(String.format("[%s] Started job", this.name));
         running = true;
         start.execute(this);
+        return this;
     }
 }

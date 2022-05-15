@@ -54,9 +54,9 @@ public class Werewolf extends AbstractRole implements NightActive {
                 * (Works only in the werewolves phase.)
                 * */
 
-                if (time.getPhase() != NightPhase.WEREWOLVES) {
+                if (time.getPhase() != NightPhase.WEREWOLVES || player.getStatus() != Status.AWAKE) {
                     throw new IllegalRequestException(
-                            "Can only be invoked when it's werewolves phase.",
+                            "Can only be invoked when it's werewolves phase and the werewolf is awake.",
                             request
                     );
                 }
@@ -100,25 +100,28 @@ public class Werewolf extends AbstractRole implements NightActive {
 
                 HashSet<Player> targets = new HashSet<>();
                 for (Player player : playerRegistry) {
-                    if (player.getPlayerController() instanceof Werewolf) {
-                        targets.add(((Werewolf) player.getPlayerController()).getCurrentTarget());
+                    if (player.getPlayerController() instanceof Werewolf werewolf
+                            && player.getStatus() == Status.AWAKE) {
+                        targets.add(werewolf.getCurrentTarget());
                     }
                 }
                 if (targets.size() != 1) {
                     break;
                 }
                 currentTarget.addTag(new WerewolfVictim());
-                Job phaseJob;
+                Job phaseJob = null;
                 for (Player player : playerRegistry) {
-                    if (player.getPlayerController() instanceof Werewolf) {
-                        ((Werewolf) player.getPlayerController()).setCurrentTarget(null);
-                        Job job = ((Werewolf) player.getPlayerController()).getJob();
+                    if (player.getPlayerController() instanceof Werewolf werewolf) {
+                        werewolf.setCurrentTarget(null);
+                        Job job = werewolf.getJob();
                         if (job != null && job.isRunning()) {
                             phaseJob = job;
                         }
                     }
                 }
-                job.done();
+                if (phaseJob != null) {
+                    phaseJob.done();
+                }
 
                 /*
                 * End of case "werewolf-point"

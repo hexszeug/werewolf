@@ -1,5 +1,6 @@
 package eu.hexsz.werewolf.role;
 
+import eu.hexsz.werewolf.controller.ExecutionService;
 import eu.hexsz.werewolf.controller.Job;
 
 /**
@@ -15,5 +16,5 @@ public interface OnwDeathActive extends PlayerController {
      * @param job The job to close when the player died or finished surviving.
      * @since 1.0-SNAPSHOT
      * */
-    void die(Job job);
+    void die(Job job, ExecutionService.Execution execution);
 }

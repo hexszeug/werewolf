@@ -17,7 +17,6 @@ import java.util.HashSet;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
-//TODO add more tests
 public class Player implements RequestHandler {
     public static final String PATH = "game";
     /**
@@ -34,7 +33,7 @@ public class Player implements RequestHandler {
     private final @Getter Session session;
     private @Getter PlayerController playerController;
     private @Getter Status status;
-    private final @Getter HashSet<Tag> tags;
+    private final HashSet<Tag> tags;
 
     //dependencies
     private final AutoPlayerUpdateService autoPlayerUpdateService;
@@ -45,7 +44,7 @@ public class Player implements RequestHandler {
      * @param nickname The nickname of the player specified by the client.
      * @param avatar The avatar of the player either as a Base64 image or as an url referring to an image.
      * @param session The session the player is bound to.
-     * @param autoPlayerUpdateService
+     * @param autoPlayerUpdateService The update service to notify when the status or role is changed.
      * @since 1.0-SNAPSHOT
      * */
     public Player(
@@ -87,7 +86,7 @@ public class Player implements RequestHandler {
      * @since 1.0-SNAPSHOT
      * */
     public void setStatus(Status status) {
-        if (status == null || status == this.status) {
+        if (status == null || status == this.status || this.status == Status.DEAD) {
             return;
         }
         Status old = this.status;
@@ -98,7 +97,6 @@ public class Player implements RequestHandler {
     /**
      * Adds a {@link Tag} to the Player.
      * @param tag The tag to add.
-     * @see Tag
      * @since 1.0-SNAPSHOT
      * */
     public void addTag(Tag tag) {
@@ -109,14 +107,49 @@ public class Player implements RequestHandler {
 
     /**
      * Removes a {@link Tag} from the Player.
+     * <br><b>Note: two tags are equal by default if their class names match.</b>
+     * <br>If the Player doesn't have this tag happens nothing.
      * @param tag The tag to remove.
-     * @see Tag
      * @since 1.0-SNAPSHOT
      * */
     public void removeTag(Tag tag) {
         if (tag != null) {
             tags.remove(tag);
         }
+    }
+
+    /**
+     * Removes all {@link Tag} from the Player by the class of the Tags.
+     * This works even if the subclass of {@code Tag} overwrote the {@code equals()} method.
+     * If the Player doesn't have this tag happens nothing.
+     * @param clazz The class of the Tags to remove.
+     * */
+    public void removeTag(Class<? extends Tag> clazz) {
+        if (clazz == null) {
+            return;
+        }
+        tags.removeIf(clazz::isInstance);
+    }
+
+    /**
+     * Tests if the player has the passed tag.
+     * @param tag The tag to test for if the player has it.
+     * @return true - if the player has the tag
+     * @since 1.0-SNAPSHOT
+     * */
+    public boolean hasTag(Tag tag) {
+        return tags.contains(tag);
+    }
+
+    /**
+     * Returns a clone of the tag {@link java.util.Set Set} of the player
+     * so the returned object can't modify the tags of the player.
+     * @return an {@link Iterable<Tag>} of the tags in this player.
+     * @since 1.0-SNAPSHOT
+     * */
+    @SuppressWarnings("unchecked")
+    public Iterable<Tag> tags() {
+        return (Iterable<Tag>) tags.clone();
     }
 
 

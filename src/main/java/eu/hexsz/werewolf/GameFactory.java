@@ -45,12 +45,12 @@ public class GameFactory {
         }
         built = true;
         PlayerRegistry playerRegistry = new PlayerRegistry();
+        ExecutionService executionService = new ExecutionService(playerRegistry);
         Time time = new Time(playerRegistry);
         AutoPlayerUpdateService autoPlayerUpdateService = new AutoPlayerUpdateService(playerRegistry);
         NightController nightController = new NightController(time, playerRegistry);
-        DayController dayController = new DayController(time);
+        DayController dayController = new DayController(playerRegistry, executionService, time);
         GameController gameController = new GameController(time, nightController, dayController);
-        ExecutionService executionService = new ExecutionService();
         Random random = new Random();
         for (User user : users) {
             Player player = new Player(

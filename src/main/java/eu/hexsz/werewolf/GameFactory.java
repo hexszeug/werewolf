@@ -63,8 +63,8 @@ public class GameFactory {
             );
             player.setPlayerController(
                     switch (roles.remove(random.nextInt(roles.size()))) {
-                        case "WEREWOLF" -> new Werewolf(player, playerRegistry, nightController, time);
-                        default -> new Villager();
+                        case "WEREWOLF" -> new Werewolf(player, playerRegistry, dayController, nightController, time);
+                        default -> new Villager(player, playerRegistry, dayController, time);
                     }
             );
         }

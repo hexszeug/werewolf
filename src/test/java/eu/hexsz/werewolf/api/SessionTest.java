@@ -134,7 +134,7 @@ class SessionTest {
     }
 
     @Test
-    void receiveOnSessionPath() { //TODO add test
+    void receiveOnSessionPath() {
         //given
 
 

@@ -4,6 +4,7 @@ import eu.hexsz.werewolf.api.IllegalRequestException;
 import eu.hexsz.werewolf.api.Message;
 import eu.hexsz.werewolf.api.Request;
 import eu.hexsz.werewolf.api.Session;
+import eu.hexsz.werewolf.controller.DayController;
 import eu.hexsz.werewolf.controller.Job;
 import eu.hexsz.werewolf.controller.NightController;
 import eu.hexsz.werewolf.player.Player;
@@ -35,7 +36,7 @@ class WerewolfTest {
         playerRegistry = mock(PlayerRegistry.class);
         nightController = mock(NightController.class);
         Time time = mock(Time.class);
-        werewolf = new Werewolf(player, playerRegistry, nightController, time);
+        werewolf = new Werewolf(player, playerRegistry, mock(DayController.class), nightController, time);
         when(player.getPlayerID()).thenReturn("a");
         when(player.getStatus()).thenReturn(Status.AWAKE);
         when(player.getPlayerController()).thenReturn(werewolf);

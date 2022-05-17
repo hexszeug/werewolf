@@ -3,6 +3,7 @@ package eu.hexsz.werewolf.role.standard;
 import eu.hexsz.werewolf.api.IllegalRequestException;
 import eu.hexsz.werewolf.api.Message;
 import eu.hexsz.werewolf.api.Request;
+import eu.hexsz.werewolf.controller.DayController;
 import eu.hexsz.werewolf.controller.Job;
 import eu.hexsz.werewolf.controller.NightController;
 import eu.hexsz.werewolf.player.Player;
@@ -20,7 +21,8 @@ import lombok.Setter;
 
 import java.util.HashSet;
 
-@RequiredArgsConstructor
+import static eu.hexsz.werewolf.api.RequestHandler.*;
+
 public class Werewolf extends AbstractRole implements NightActive {
     private @Setter @Getter Player currentTarget;
     private @Getter Job job;
@@ -30,6 +32,14 @@ public class Werewolf extends AbstractRole implements NightActive {
     private final PlayerRegistry playerRegistry;
     private final NightController nightController;
     private final Time time;
+
+    public Werewolf(Player player, PlayerRegistry playerRegistry, DayController dayController, NightController nightController, Time time) {
+        super(player, playerRegistry, dayController, time);
+        this.player = player;
+        this.playerRegistry = playerRegistry;
+        this.nightController = nightController;
+        this.time = time;
+    }
 
     @Override
     public void setAlarms() {
@@ -47,23 +57,18 @@ public class Werewolf extends AbstractRole implements NightActive {
             return;
         }
         switch (request.getType()) {
-            case "werewolf/point":
+            case "werewolf/point" -> {
 
                 /*
-                * Invoked by a werewolf when he points on a player he wants to kill this night.
-                * (Works only in the werewolves phase.)
-                * */
+                 * Invoked by a werewolf when he points on a player he wants to kill this night.
+                 * */
 
-                if (time.getPhase() != NightPhase.WEREWOLVES || player.getStatus() != Status.AWAKE) {
-                    throw new IllegalRequestException(
-                            "Can only be invoked when it's werewolves phase and the werewolf is awake.",
-                            request
-                    );
-                }
+                checkPhase(time, NightPhase.WEREWOLVES, request);
+                checkAwake(player, request);
 
                 /*
-                * Set the current target to the passed player
-                * */
+                 * Set the current target to the passed player
+                 * */
 
                 Player target = playerRegistry.getPlayer(request.getData(String.class));
                 if (target == null) {
@@ -81,8 +86,8 @@ public class Werewolf extends AbstractRole implements NightActive {
                 currentTarget = target;
 
                 /*
-                * Broadcast that you are pointing on the target to all awake and dead players.
-                * */
+                 * Broadcast that you are pointing on the target to all awake and dead players.
+                 * */
 
                 Message message = new PlayerUpdateBuilder(target)
                         .addTag(new WerewolfPointer(player.getPlayerID()))
@@ -94,9 +99,9 @@ public class Werewolf extends AbstractRole implements NightActive {
                 }
 
                 /*
-                * Mark the target as the werewolves victim and end the phase
-                * if all werewolves are pointing on the same target.
-                * */
+                 * Mark the target as the werewolves victim and end the phase
+                 * if all werewolves are pointing on the same target.
+                 * */
 
                 HashSet<Player> targets = new HashSet<>();
                 for (Player player : playerRegistry) {
@@ -122,15 +127,13 @@ public class Werewolf extends AbstractRole implements NightActive {
                 if (phaseJob != null) {
                     phaseJob.done();
                 }
+            }
 
-                /*
-                * End of case "werewolf-point"
-                * */
+            /*
+             * End of case "werewolf-point"
+             * */
 
-                break;
-
-
-            default: super.handle(request);
+            default -> super.handle(request);
         }
     }
 

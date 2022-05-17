@@ -28,7 +28,6 @@ import java.util.UUID;
  * @since 1.0-SNAPSHOT
  * @author hexszeug
  * */
-//TODO implement receive() + test + sessionID stuff
 public class Session implements RequestHandler {
     /**
      * {@inheritDoc}
@@ -113,6 +112,10 @@ public class Session implements RequestHandler {
             }
             receiver.receive(request);
         } catch (IllegalRequestException e) {
+            if (e.getRequest() instanceof Request request) {
+                send(new ErrorMessage(request.getPath(), e));
+                return;
+            }
             send(new ErrorMessage(PATH(), e));
         }
     }
@@ -134,12 +137,11 @@ public class Session implements RequestHandler {
      * @param request*/
     @Override
     public void receive(Request request) throws IllegalRequestException {
-        Object data = request.getData();
         switch (request.getType()) {
-            case "new":
+            case "new" -> {
                 send(new Message(PATH(), "sessionID", sessionID));
-                break;
-            case "restore":
+            }
+            case "restore" -> {
                 Session session = sessionRegistry.getSession(request.getData(String.class));
                 if (session == null) {
                     send(new Message(PATH(), "sessionID", sessionID));
@@ -148,12 +150,11 @@ public class Session implements RequestHandler {
                 socket.setSession(session);
                 send(new Message(PATH(), "sessionID", session.getSessionID()));
                 sessionRegistry.removeSession(sessionID);
-                break;
-            default:
-                throw new IllegalRequestException(
-                        String.format("Request type \"%s\" is not a method.", request.getType()),
-                        request
-                );
+            }
+            default -> throw new IllegalRequestException(
+                    String.format("Request type \"%s\" is not a method.", request.getType()),
+                    request
+            );
         }
         //TODO more session request handlers
     }

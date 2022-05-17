@@ -13,14 +13,13 @@ import java.util.logging.Logger;
  * @author hexszeug
  * */
 public class Job {
-    //TODO make multiple loggers for different rooms
 
     private final @Getter String name;
-    private @NonNull @Setter Recall recall;
-    private @NonNull @Setter Start start;
+    private final Start start;
+    private final Recall recall;
 
-    private @Getter boolean done;
     private @Getter boolean running;
+    private @Getter boolean done;
 
     /**
      * A {@code Job} should be given to a lower controller to start an asynchronous task.
@@ -40,7 +39,43 @@ public class Job {
     }
 
     /**
+     * Should be called by the creator of the job to start the job.
+     * @since 1.0-SNAPSHOT
+     * */
+    public Job start() {
+        if (running || done) {
+            return this;
+        }
+        System.out.printf("[Job:%s] Started job%n", this.name);
+        running = true;
+        if (start != null) {
+            start.execute(this);
+        }
+        return this;
+    }
+
+    /**
+     * Should be called by the controller the job was given to.
+     * Marks the job as completed and notifies the creator of the job.
+     * @since 1.0-SNAPSHOT
+     * */
+    public void done() {
+        if (!running || done) {
+            return;
+        }
+        System.out.printf("[Job:%s] Finished job%n", name);
+        running = false;
+        done = true;
+        if (recall != null) {
+            recall.execute();
+        }
+    }
+
+    /**
      * A method which is called when a job starts.
+     * @see Job
+     * @since 1.0-SNAPSHOT
+     * @author hexszeug
      * */
     public interface Start {
         void execute(Job job);
@@ -50,37 +85,9 @@ public class Job {
      * A method which is called when a job is completed.
      * @see Job
      * @since 1.0-SNAPSHOT
+     * @author hexszeug
      * */
     public interface Recall {
         void execute();
-    }
-
-    /**
-     * Should be called by the controller the job was given to.
-     * Marks the job as completed and notifies the creator of the job.
-     * @since 1.0-SNAPSHOT
-     * */
-    public Job done() {
-        if (!running || done) {
-            return this;
-        }
-        System.out.println(String.format("[%s] Finished job", name));
-        running = false;
-        done = true;
-        recall.execute();
-        return this;
-    }
-
-    /**
-     * Should be called by the creator of the job to start the job.
-     * */
-    public Job start() {
-        if (running || done) {
-            return this;
-        }
-        System.out.println(String.format("[%s] Started job", this.name));
-        running = true;
-        start.execute(this);
-        return this;
     }
 }

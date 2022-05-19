@@ -12,9 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Controls the day. The day is split in four phases:
@@ -32,7 +30,8 @@ import java.util.HashSet;
  * */
 @RequiredArgsConstructor
 public class DayController {
-    private final static int ACCUSING_TIMEOUT = 5000;
+    final static int ACCUSING_TIMEOUT = 5000;
+    static final int HEARING_TIMEOUT = 20000;
 
     private Job job;
 
@@ -96,8 +95,8 @@ public class DayController {
                 }
                 new Job(
                         String.format("%s:dead_reveal", time.getNight()),
-                        (Job executionJob) -> {
-                            executionService.kill(executionJob, executees.toArray(new Player[0]));
+                        (Job job) -> {
+                            executionService.kill(job, executees.toArray(new Player[0]));
                         },
                         this::endPhase
                 ).start();
@@ -121,8 +120,9 @@ public class DayController {
             }
 
             case JUDGING -> {
-                System.out.println("todo: judging");
-                endPhase();
+                ArrayList<Player> hearingList = new ArrayList<>(new HashSet<>(charges.values()));
+                Collections.shuffle(hearingList);
+                startCourt(hearingList);
 
                 /*
                  * End of JUDGING
@@ -131,8 +131,13 @@ public class DayController {
             }
 
             case EXECUTION -> {
-                System.out.println("todo: execution");
-                endPhase();
+                new Job(
+                        String.format("%s:execution", time.getNight()),
+                        (Job job) -> {
+                            executionService.kill(job, executee);
+                        },
+                        this::endPhase
+                ).start();
 
                 /*
                  * End of EXECUTION
@@ -246,16 +251,15 @@ public class DayController {
 
     public static class Speaker extends Tag {}
 
-    @Getter
-    @RequiredArgsConstructor
-    public static class Hand extends Tag {
-        private final boolean raised;
-    }
+    public static class Hand extends Tag {}
 
     @Getter
-    @RequiredArgsConstructor
     public static class Accused extends Tag {
         private final String accuserID;
+
+        private Accused(Player accuser) {
+            accuserID = accuser.getPlayerID();
+        }
     }
 
     private void broadcastAccusing(Player player) {
@@ -263,14 +267,15 @@ public class DayController {
             return;
         }
         PlayerUpdateBuilder playerUpdateBuilder = new PlayerUpdateBuilder(player);
-        playerUpdateBuilder.addTag(new Hand(raisedHands.contains(player)));
+        if (raisedHands.contains(player)) {
+            playerUpdateBuilder.addTag(new Hand());
+        }
         if (getSpeaker() == player) {
             playerUpdateBuilder.addTag(new Speaker());
         }
-        for (Player accuser : charges.keySet()) {
-            Player accused = charges.get(accuser);
-            if (accused == player) {
-                playerUpdateBuilder.addTag(new Accused(accuser.getPlayerID()));
+        for (Map.Entry<Player, Player> entry : charges.entrySet()) {
+            if (entry.getValue() == player) {
+                playerUpdateBuilder.addTag(new Accused(entry.getKey()));
             }
         }
         broadcast(playerUpdateBuilder.build());
@@ -279,4 +284,137 @@ public class DayController {
     /*
      * End of code for the ACCUSING phase
      * */
+
+    /*
+    * Code for the JUDGING phase
+    * */
+
+    private Iterator<Player> courtHearings;
+    private @Getter Player currentDefendant;
+    private Timer hearingTimer;
+    private HashMap<Player, Player> votes;
+    private HashMap<Player, HashSet<Player>> voters;
+
+    private void startCourt(Collection<Player> hearingList) {
+        if (hearingList == null || hearingList.isEmpty()) {
+            endPhase();
+            return;
+        }
+        courtHearings = hearingList.iterator();
+        votes = new HashMap<>();
+        voters = new HashMap<>();
+        for (Player defendant : hearingList) {
+            voters.put(defendant, new HashSet<>());
+            broadcastJudging(defendant);
+        }
+        nextHearing();
+    }
+
+    private void nextHearing() {
+        if (!courtHearings.hasNext()) {
+            countVotes();
+            return;
+        }
+        Player oldDefendant = currentDefendant;
+        currentDefendant = courtHearings.next();
+        broadcastJudging(oldDefendant);
+        broadcastJudging(currentDefendant);
+        if (courtHearings.hasNext()) {
+            hearingTimer = new Timer("hearing", HEARING_TIMEOUT, this::nextHearing);
+            hearingTimer.start();
+            return;
+        }
+
+        //auto-vote for last defendant (only players who didn't vote yet)
+        for (Player voter : playerRegistry) {
+            vote(voter);
+        }
+        countVotes();
+    }
+
+    public void vote(Player voter) {
+        if (voter == null || currentDefendant == null || votes.containsKey(voter)) {
+            return;
+        }
+        votes.put(voter, currentDefendant);
+        voters.get(currentDefendant).add(voter);
+        broadcastJudging(currentDefendant);
+
+        //skip rest of voting when all players voted
+        if (votes.size() >= playerRegistry.size()) {
+            hearingTimer.cancel();
+            countVotes();
+        }
+    }
+
+    public Player getVote(Player voter) {
+        return votes.get(voter);
+    }
+
+    private void countVotes() {
+        HashSet<Player> highest = new HashSet<>();
+        int highestVotes = 0;
+        for (Map.Entry<Player, HashSet<Player>> entry : voters.entrySet()) {
+            int votes = entry.getValue().size();
+            if (votes > highestVotes) {
+                highest = new HashSet<>();
+                highestVotes = votes;
+            }
+            if (votes == highestVotes) {
+                highest.add(entry.getKey());
+            }
+        }
+        if (highest.size() > 1) {
+            //todo add mayor
+            startCourt(highest);
+            return;
+        }
+        executee = highest.toArray(new Player[0])[0];
+        broadcastJudging(executee);
+        endPhase();
+    }
+
+    private void broadcastJudging(Player player) {
+        if (player == null) {
+            return;
+        }
+        PlayerUpdateBuilder playerUpdateBuilder = new PlayerUpdateBuilder(player);
+        if (voters.containsKey(player)) {
+            playerUpdateBuilder.addTag(new Defendant(player == currentDefendant));
+            for (Player voter : voters.get(player)) {
+                playerUpdateBuilder.addTag(new Vote(voter));
+            }
+            if (player == executee) {
+                playerUpdateBuilder.addTag(new Executee());
+            }
+        }
+        broadcast(playerUpdateBuilder.build());
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    public static class Defendant extends Tag {
+        private final boolean current;
+    }
+
+    @Getter
+    public static class Vote extends Tag {
+        private final String voterID;
+
+        private Vote(Player voter) {
+            this.voterID = voter.getPlayerID();
+        }
+    }
+
+    /*
+     * End of code for the JUDGING phase
+     * */
+
+    /*
+     * Code for the EXECUTION phase
+     * */
+
+    private Player executee;
+
+    public static class Executee extends Tag {}
 }

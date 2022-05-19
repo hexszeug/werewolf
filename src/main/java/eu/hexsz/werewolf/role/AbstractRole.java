@@ -189,6 +189,37 @@ public abstract class AbstractRole implements PlayerController {
 
             }
 
+            case "judging/vote" -> {
+
+                /*
+                * Is invoked to vote for the current defendant.
+                * Can only be invoked if the player didn't vote yet.
+                * */
+
+                checkPhase(time, DayPhase.JUDGING, request);
+                checkAwake(player, request);
+
+                if (dayController.getVote(player) != null) {
+                    throw new IllegalRequestException(
+                            "You can only vote once.",
+                            request
+                    );
+                }
+                if (dayController.getCurrentDefendant() == player) {
+                    throw new IllegalRequestException(
+                            "You cannot vote for yourself.",
+                            request
+                    );
+                }
+
+                dayController.vote(player);
+
+                /*
+                 * End of case "judging/vote"
+                 * */
+
+            }
+
             default -> throw new IllegalRequestException(
                     String.format("Request type \"%s\" is not a method.", request.getType()),
                     request

@@ -42,12 +42,7 @@ public class PlayerUpdateBuilder {
         if (role != null) {
             data.put("role", new ClassNameSerializer(role).value());
         }
-        if (!tags.isEmpty()) {
-            data.put("tags", tags);
-        }
-        if (data.isEmpty()) {
-            return null;
-        }
+        data.put("tags", tags);
         data.put("playerID", player.getPlayerID());
         return new Message(Player.PATH, "player", data);
     }

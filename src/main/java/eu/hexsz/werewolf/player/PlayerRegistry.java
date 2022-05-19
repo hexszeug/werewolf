@@ -1,9 +1,8 @@
 package eu.hexsz.werewolf.player;
 
 import eu.hexsz.werewolf.api.Session;
-import eu.hexsz.werewolf.role.PlayerController;
+import eu.hexsz.werewolf.update.AutoPlayerUpdateService;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +32,8 @@ public class PlayerRegistry implements Iterable<Player> {
 
     /**
      * Registers a new Player in the registry.
-     * Should only be called by {@link Player#Player(String, String, String, Session, PlayerController, PlayerRegistry, eu.hexsz.werewolf.update.AutoPlayerUpdateService)}.
+     * Should only be called by
+     * {@link Player#Player(String, String, String, Session, PlayerRegistry, AutoPlayerUpdateService) new Player()}.
      * @param player The player to register.
      * @since 1.0-SNAPSHOT
      * */
@@ -55,5 +55,9 @@ public class PlayerRegistry implements Iterable<Player> {
             return null;
         }
         return players.get(playerID);
+    }
+
+    public int size() {
+        return players.size();
     }
 }

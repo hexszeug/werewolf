@@ -31,10 +31,14 @@ public class GameFactory {
                     "avatar",
                     session
             ));
-            if (random.nextBoolean()) {
-                roles.add("VILLAGER");
+            String[] roleNames = new String[]{
+                    "VILLAGER"
+//                    ,"WEREWOLF"
+            };
+            if (roleNames.length > 1) {
+                roles.add(roleNames[random.nextInt(roleNames.length - 1)]);
             } else {
-                roles.add("WEREWOLF");
+                roles.add(roleNames[0]);
             }
         }
     }

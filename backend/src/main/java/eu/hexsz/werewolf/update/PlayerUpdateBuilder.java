@@ -5,7 +5,6 @@ import eu.hexsz.werewolf.player.Player;
 import eu.hexsz.werewolf.player.Status;
 import eu.hexsz.werewolf.player.Tag;
 import eu.hexsz.werewolf.role.PlayerController;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

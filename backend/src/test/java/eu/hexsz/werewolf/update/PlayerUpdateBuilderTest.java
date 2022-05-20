@@ -1,6 +1,5 @@
 package eu.hexsz.werewolf.update;
 
-import eu.hexsz.werewolf.api.IllegalRequestException;
 import eu.hexsz.werewolf.api.Message;
 import eu.hexsz.werewolf.api.Request;
 import eu.hexsz.werewolf.player.Player;
@@ -8,6 +7,7 @@ import eu.hexsz.werewolf.player.Status;
 import eu.hexsz.werewolf.role.PlayerController;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +36,7 @@ class PlayerUpdateBuilderTest {
 
 
         //expect
-        assertNull(message1);
+        assertTrue(((ArrayList)message1.getData()).isEmpty());
         assertEquals("game", message2.getPath());
         assertEquals("player", message2.getType());
         assertEquals("test-id", ((HashMap<String, Object>)message2.getData()).get("playerID"));

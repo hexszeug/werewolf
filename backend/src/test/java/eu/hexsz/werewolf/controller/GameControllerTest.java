@@ -3,7 +3,6 @@ package eu.hexsz.werewolf.controller;
 import eu.hexsz.werewolf.time.Time;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GameControllerTest {

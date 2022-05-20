@@ -3,7 +3,6 @@ package eu.hexsz.werewolf.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;

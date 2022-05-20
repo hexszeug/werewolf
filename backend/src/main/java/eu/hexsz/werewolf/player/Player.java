@@ -7,7 +7,6 @@ import eu.hexsz.werewolf.api.Session;
 import eu.hexsz.werewolf.role.PlayerController;
 import eu.hexsz.werewolf.update.AutoPlayerUpdateService;
 import lombok.Getter;
-import lombok.NonNull;
 
 import java.util.HashSet;
 

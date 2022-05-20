@@ -1,10 +1,6 @@
 package eu.hexsz.werewolf.controller;
 
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-
-import java.util.logging.Logger;
 
 
 /**

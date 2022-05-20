@@ -61,4 +61,8 @@ public class SessionRegistry {
             sessions.remove(sessionID);
         }
     }
+
+    public Session[] getSessions() {
+        return sessions.values().toArray(new Session[0]);
+    }
 }

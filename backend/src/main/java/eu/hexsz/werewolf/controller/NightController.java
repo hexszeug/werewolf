@@ -5,6 +5,7 @@ import eu.hexsz.werewolf.role.NightActive;
 import eu.hexsz.werewolf.role.PlayerController;
 import eu.hexsz.werewolf.player.PlayerRegistry;
 import eu.hexsz.werewolf.player.Status;
+import eu.hexsz.werewolf.time.DayPhase;
 import eu.hexsz.werewolf.time.Phase;
 import eu.hexsz.werewolf.time.Time;
 import lombok.RequiredArgsConstructor;
@@ -95,33 +96,28 @@ public class NightController {
             }
         }
         time.nextPhase();
-        if (time.isNight()) {
-            startPhase();
-        } else if (job != null) {
-            job.done();
+        if (time.getPhase() == DayPhase.SUNRISE) {
+            if (job != null) {
+                job.done();
+            }
+            return;
         }
+        startPhase();
     }
 
     public void setAlarm(Phase phase, Player player) {
         if (phase == null || player == null) {
             return;
         }
-        HashSet<Player> players = alarms.get(phase);
-        if (players == null) {
-            players = new HashSet<>();
-            alarms.put(phase, players);
-        }
-        players.add(player);
+        alarms.computeIfAbsent(phase, k -> new HashSet<>()).add(player);
     }
 
     public void removeAlarm(Phase phase, Player player) {
         if (phase == null || player == null) {
             return;
         }
-        HashSet<Player> players = alarms.get(phase);
-        if (players != null) {
-            players.remove(player);
-        }
+        HashSet<Player> players = alarms.getOrDefault(phase, new HashSet<>());
+        players.remove(player);
     }
 
     public void setManager(Phase phase, Player player) {

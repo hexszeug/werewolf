@@ -20,6 +20,13 @@ import lombok.Getter;
  * @author hexszeug
  * */
 public class Time {
+    private static final NightPhase[] NIGHT_PHASES = NightPhase.values();
+    private static final DayPhase[] DAY_PHASES = DayPhase.values();
+    private static final NightPhase FIRST_NIGHT_PHASE = NIGHT_PHASES[0];
+    private static final NightPhase LAST_NIGHT_PHASE = NIGHT_PHASES[NIGHT_PHASES.length - 1];
+    private static final DayPhase FIRST_DAY_PHASE = DayPhase.SUNRISE;
+    private static final DayPhase LAST_DAY_PHASE = DayPhase.SUNSET;
+
     private @Getter int night;
     private @Getter Phase phase;
 
@@ -36,8 +43,9 @@ public class Time {
      * */
     public Time(PlayerRegistry playerRegistry) {
         this.playerRegistry = playerRegistry;
-        night = 0;
-        phase = NightPhase.values()[0];
+        night = -1;
+        phase = SpecialPhase.GAME_START;
+        sendPhaseUpdate();
     }
 
     /**
@@ -48,6 +56,11 @@ public class Time {
         return phase instanceof NightPhase;
     }
 
+    //todo replace is night
+    public boolean isDay() {
+        return phase instanceof DayPhase;
+    }
+
 
     /**
      * Jumps to the next phase automatically switching between day and night.
@@ -55,20 +68,25 @@ public class Time {
      * @since 1.0-SNAPSHOT
      * */
     public void nextPhase() {
-        if (isNight()) {
-            if (NightPhase.values().length > phase.ordinal() + 1) {
-                phase = NightPhase.values()[phase.ordinal() + 1];
-            } else {
-                phase = DayPhase.values()[0];
-            }
-        } else {
-            if (DayPhase.values().length > phase.ordinal() + 1) {
-                phase = DayPhase.values()[phase.ordinal() + 1];
-            } else {
-                phase = NightPhase.values()[0];
-                night++;
-            }
+        //increment night counter
+        if (phase == DayPhase.SUNSET) {
+            night++;
         }
+
+        //set phase
+        if (phase instanceof NightPhase) {
+            phase = (phase == LAST_NIGHT_PHASE) ? FIRST_DAY_PHASE : NIGHT_PHASES[phase.ordinal() + 1];
+        } else if (phase instanceof DayPhase) {
+            phase = (phase == LAST_DAY_PHASE) ? FIRST_NIGHT_PHASE : DAY_PHASES[phase.ordinal() + 1];
+        } else if (phase == SpecialPhase.GAME_START) {
+            phase = DayPhase.SUNSET;
+        }
+
+        //update players
+        sendPhaseUpdate();
+    }
+
+    private void sendPhaseUpdate() {
         Message message = new PhaseUpdateBuilder(phase).build();
         for (Player player : playerRegistry) {
             player.getSession().send(message);

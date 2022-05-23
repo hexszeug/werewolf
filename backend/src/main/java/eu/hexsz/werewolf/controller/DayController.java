@@ -6,6 +6,7 @@ import eu.hexsz.werewolf.player.PlayerRegistry;
 import eu.hexsz.werewolf.player.Status;
 import eu.hexsz.werewolf.player.Tag;
 import eu.hexsz.werewolf.time.DayPhase;
+import eu.hexsz.werewolf.time.Phase;
 import eu.hexsz.werewolf.time.Time;
 import eu.hexsz.werewolf.update.PlayerUpdateBuilder;
 import lombok.Getter;
@@ -50,33 +51,37 @@ public class DayController {
             return;
         }
 
-        if (time.isNight()) {
-            job.done();
-            return;
-        }
-
         this.job = job;
-
-        for (Player player : playerRegistry) {
-            if (player.getStatus() != Status.DEAD) {
-                player.setStatus(Status.AWAKE);
-            }
-        }
 
         startPhase();
     }
 
     private void startPhase() {
-        if (!(time.getPhase() instanceof DayPhase phase) || time.isNight()) {
-            for (Player player : playerRegistry) {
-                if (player.getStatus() != Status.DEAD) {
-                    player.setStatus(Status.SLEEPING);
-                }
-            }
+        if (!(time.getPhase() instanceof DayPhase phase)) {
             job.done();
             return;
         }
         switch (phase) {
+            case SUNRISE -> {
+
+                /*
+                * Awakes all players that are not dead.
+                * */
+
+                for (Player player : playerRegistry) {
+                    if (player.getStatus() != Status.DEAD) {
+                        player.setStatus(Status.AWAKE);
+                    }
+                }
+
+                endPhase();
+
+                /*
+                 * End of SUNRISE
+                 * */
+
+            }
+
             case DEAD_REVEAL -> {
 
                 /*
@@ -131,6 +136,11 @@ public class DayController {
             }
 
             case EXECUTION -> {
+
+                /*
+                *
+                * */
+
                 new Job(
                         String.format("%s:execution", time.getNight()),
                         (Job job) -> {
@@ -141,6 +151,26 @@ public class DayController {
 
                 /*
                  * End of EXECUTION
+                 * */
+
+            }
+
+            case SUNSET -> {
+
+                /*
+                * Let all players fall asleep and ends the day (phase stays at SUNSET).
+                * */
+
+                for (Player player : playerRegistry) {
+                    if (player.getStatus() == Status.AWAKE) {
+                        player.setStatus(Status.SLEEPING);
+                    }
+                }
+
+                job.done();
+
+                /*
+                 * End of SUNSET
                  * */
 
             }

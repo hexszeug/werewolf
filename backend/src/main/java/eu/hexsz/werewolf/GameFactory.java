@@ -33,10 +33,10 @@ public class GameFactory {
             ));
             String[] roleNames = new String[]{
                     "VILLAGER"
-//                    ,"WEREWOLF"
+                    ,"WEREWOLF"
             };
             if (roleNames.length > 1) {
-                roles.add(roleNames[random.nextInt(roleNames.length - 1)]);
+                roles.add(roleNames[random.nextInt(roleNames.length)]);
             } else {
                 roles.add(roleNames[0]);
             }
@@ -48,16 +48,16 @@ public class GameFactory {
             return;
         }
         built = true;
+
+        /*
+        * Create singletons and inject them in each other
+        * */
+
         PlayerRegistry playerRegistry = new PlayerRegistry();
-        ExecutionService executionService = new ExecutionService(playerRegistry);
-        Time time = new Time(playerRegistry);
         AutoPlayerUpdateService autoPlayerUpdateService = new AutoPlayerUpdateService(playerRegistry);
-        NightController nightController = new NightController(time, playerRegistry);
-        DayController dayController = new DayController(playerRegistry, executionService, time);
-        GameController gameController = new GameController(time, nightController, dayController);
-        Random random = new Random();
+        //create players as early as possible
         for (User user : users) {
-            Player player = new Player(
+            new Player(
                     user.getPlayerID(),
                     user.getNickname(),
                     user.getAvatar(),
@@ -65,6 +65,20 @@ public class GameFactory {
                     playerRegistry,
                     autoPlayerUpdateService
             );
+        }
+        Time time = new Time(playerRegistry);
+        ExecutionService executionService = new ExecutionService(playerRegistry);
+        NightController nightController = new NightController(time, playerRegistry);
+        DayController dayController = new DayController(playerRegistry, executionService, time);
+        GameController gameController = new GameController(time, nightController, dayController,
+                playerRegistry, autoPlayerUpdateService);
+
+        /*
+        * Distribute roles
+        * */
+
+        Random random = new Random();
+        for (Player player : playerRegistry) {
             player.setPlayerController(
                     switch (roles.remove(random.nextInt(roles.size()))) {
                         case "WEREWOLF" -> new Werewolf(player, playerRegistry, dayController, nightController, time);
@@ -72,11 +86,11 @@ public class GameFactory {
                     }
             );
         }
-        Message phaseMessage = new PhaseUpdateBuilder(time.getPhase()).build();
-        for (Player player : playerRegistry) {
-            autoPlayerUpdateService.onPlayerCreated(player);
-            player.getSession().send(phaseMessage);
-        }
+
+        /*
+        * Start game
+        * */
+
         new Job("game", gameController::startGame, null).start(); //TODO handle game end
     }
 }

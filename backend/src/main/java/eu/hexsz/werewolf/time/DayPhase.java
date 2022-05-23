@@ -14,8 +14,10 @@ package eu.hexsz.werewolf.time;
  * @author hexszeug
  * */
 public enum DayPhase implements Phase {
+    SUNRISE,
     DEAD_REVEAL,
     ACCUSING,
     JUDGING,
-    EXECUTION;
+    EXECUTION,
+    SUNSET;
 }

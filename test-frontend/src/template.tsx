@@ -1,10 +1,10 @@
 import React from "react";
 
-type IProps = {}
-type IState = {}
+type PropsType = {}
+type StateType = {}
 
-class NewComponent extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
+class NewComponent extends React.Component<PropsType, StateType> {
+  constructor(props: PropsType) {
     super(props);
   }
 

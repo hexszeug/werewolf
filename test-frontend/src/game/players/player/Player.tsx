@@ -1,47 +1,41 @@
-import React from "react";
-import "./Player.scss";
+import './Player.scss';
 
-interface IPlayer {
-  playerID: string;
-  status?: 
-    "AWAKE" |
-    "SLEEPING" |
-    "DEAD";
-  role?:
-    "WEREWOLF" |
-    "VILLAGER";
-  tags: Array<{
-    name: string;
-    [key: string]: any;
-  }>
+type PlayerType = {
+	playerID: string;
+	nickname?: string;
+	avatar?: string;
+	isMe?: boolean;
+	status?: 'AWAKE' | 'SLEEPING' | 'DEAD';
+	role?: 'WEREWOLF' | 'VILLAGER';
+	tags: {
+		name: string;
+		[key: string]: any;
+	}[];
 };
 
-type IProps = {
-  player: IPlayer
-}
-type IState = {}
+type PropsType = {
+	player: PlayerType;
+	onClick: () => void;
+};
 
-class Player extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-  }
-
-  render() {
-    const player = this.props.player;
-    return (
-      <div className="Player">
-        <h1>{player.playerID.substring(0, 5)}</h1>
-        <h2>Status: {player.status || "AWAKE"}</h2>
-        <h2>Role: {player.role || "UNKNOWN"}</h2>
-        <ul>
-          {player.tags.map((tag) => {
-            return <li key={tag.name}>{tag.name}</li>
-          })}
-        </ul>
-      </div>
-    );
-  }
-}
+const Player = (props: PropsType) => {
+	const player = props.player;
+	return (
+		<div
+			className='Player'
+			onClick={props.onClick}
+		>
+			<h1>{player.nickname}</h1>
+			<h2>Status: {player.status || 'AWAKE'}</h2>
+			<h2>Role: {player.role || 'UNKNOWN'}</h2>
+			<ul>
+				{player.tags.map((tag) => {
+					return <li key={tag.name}>{tag.name}</li>;
+				})}
+			</ul>
+		</div>
+	);
+};
 
 export default Player;
-export type { IPlayer };
+export type { PlayerType };

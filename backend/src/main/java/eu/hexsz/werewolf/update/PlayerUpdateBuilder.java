@@ -23,6 +23,9 @@ public class PlayerUpdateBuilder {
     private Player player;
     private Status status;
     private PlayerController role;
+    private String nickname;
+    private String avatar;
+    private boolean isMe;
     private final ArrayList<Tag> tags;
 
     public PlayerUpdateBuilder(Player player) {
@@ -40,6 +43,15 @@ public class PlayerUpdateBuilder {
         }
         if (role != null) {
             data.put("role", new ClassNameSerializer(role).value());
+        }
+        if (nickname != null) {
+            data.put("nickname", nickname);
+        }
+        if (avatar != null) {
+            data.put("avatar", avatar);
+        }
+        if (isMe) {
+            data.put("isMe", true);
         }
         data.put("tags", tags);
         data.put("playerID", player.getPlayerID());

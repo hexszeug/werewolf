@@ -103,17 +103,18 @@ public class AutoPlayerUpdateService {
      * @since 1.0-SNAPSHOT
      * */
     public void onPlayerCreated(Player createdPlayer) {
-        Message message = new PlayerUpdateBuilder(createdPlayer)
-                .setStatus(createdPlayer.getStatus())
+        PlayerUpdateBuilder playerUpdateBuilder = new PlayerUpdateBuilder(createdPlayer)
+                .setNickname(createdPlayer.getNickname())
+                .setAvatar(createdPlayer.getAvatar())
+                .setStatus(createdPlayer.getStatus());
+        Message publicMessage = playerUpdateBuilder.build();
+        Message privateMessage = playerUpdateBuilder
+                .setMe(true)
+                .setRole(createdPlayer.getPlayerController())
                 .build();
         for (Player player : playerRegistry) {
             player.getSession().send(
-                    (player == createdPlayer) ?
-                            new PlayerUpdateBuilder(createdPlayer)
-                                    .setStatus(createdPlayer.getStatus())
-                                    .setRole(createdPlayer.getPlayerController())
-                                    .build()
-                            : message
+                    (player == createdPlayer) ? privateMessage : publicMessage
             );
         }
     }

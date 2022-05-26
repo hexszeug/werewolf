@@ -1,19 +1,19 @@
-import React from "react";
-import { IPlayer } from "../../players/player/Player";
+import React from 'react';
+import Players, { PlayerListType } from '../../players/Players';
 
-type IProps = {
-  players: Array<IPlayer>;
-}
-type IState = {}
+type PropsType = {
+	players: PlayerListType;
+};
+type StateType = {};
 
-class InitView extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-  }
+class InitView extends React.Component<PropsType, StateType> {
+	constructor(props: PropsType) {
+		super(props);
+	}
 
-  render() {
-    return null;
-  }
+	render() {
+		return <Players players={this.props.players} />;
+	}
 }
 
 export default InitView;

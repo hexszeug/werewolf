@@ -13,6 +13,7 @@ import eu.hexsz.werewolf.update.PhaseUpdateBuilder;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 
 public class GameFactory {
     private boolean built;
@@ -25,9 +26,10 @@ public class GameFactory {
         roles = new ArrayList<>();
         Random random = new Random();
         for (Session session : sessions) {
+            String playerID = UUID.randomUUID().toString();
             users.add(new User(
-                    session.getSessionID(),
-                    "name" + session.getSessionID(),
+                    playerID,
+                    playerID.substring(0, 6),
                     "avatar",
                     session
             ));

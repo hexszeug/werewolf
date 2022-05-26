@@ -1,16 +1,32 @@
-import React from "react";
+import Player, { PlayerType } from './player/Player';
 
-type IProps = {}
-type IState = {}
+type PlayerListType = {
+	[key: string]: PlayerType;
+};
 
-class Players extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-  }
+type PropsType = {
+	players: PlayerListType;
+	onClick?: (player: PlayerType) => void;
+};
 
-  render() {
-    return null;
-  }
-}
+const Players = (props: PropsType) => {
+	const players = Object.values(props.players);
+	return (
+		<div>
+			{players.map((player) => (
+				<Player
+					key={player.playerID}
+					player={player}
+					onClick={() => {
+						if (props.onClick) {
+							props.onClick(player);
+						}
+					}}
+				/>
+			))}
+		</div>
+	);
+};
 
 export default Players;
+export type { PlayerListType };

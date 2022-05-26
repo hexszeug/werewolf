@@ -31,7 +31,7 @@ class App extends React.Component<PropsType, StateType> {
 	}
 
 	componentDidMount() {
-		this.websocket = new WebSocket('ws://localhost:80');
+		this.websocket = new WebSocket(`ws://${window.location.hostname}:80`);
 		this.websocket.onmessage = (e) => {
 			this.handleMessage(e.data);
 		};
@@ -56,7 +56,6 @@ class App extends React.Component<PropsType, StateType> {
 						subscribe={this.subscribe}
 						send={this.send}
 					/>
-					<p>{this.playerID}</p>
 				</div>
 			);
 		}
@@ -81,9 +80,7 @@ class App extends React.Component<PropsType, StateType> {
 			this.playerID = data.playerID;
 		}
 		this.setState({ phase: path });
-		if (path in this.subscribedMessageHandlers) {
-			this.subscribedMessageHandlers[path]({ type, data });
-		}
+		this.subscribedMessageHandlers[path]?.({ type, data });
 	}
 
 	subscribe(path: string, handler: MessageHandlerType) {

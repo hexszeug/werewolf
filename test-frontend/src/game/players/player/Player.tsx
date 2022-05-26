@@ -15,14 +15,14 @@ type PlayerType = {
 
 type PropsType = {
 	player: PlayerType;
-	onClick: () => void;
+	onClick?: () => void;
 };
 
 const Player = (props: PropsType) => {
 	const player = props.player;
 	return (
 		<div
-			className='Player'
+			className={`Player ${props.onClick ? 'clickable' : ''}`}
 			onClick={props.onClick}
 		>
 			<h1>{player.nickname}</h1>

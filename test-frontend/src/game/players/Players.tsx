@@ -1,3 +1,4 @@
+import './Players.scss';
 import Player, { PlayerType } from './player/Player';
 
 type PlayerListType = {
@@ -12,16 +13,18 @@ type PropsType = {
 const Players = (props: PropsType) => {
 	const players = Object.values(props.players);
 	return (
-		<div>
+		<div className='Players'>
 			{players.map((player) => (
 				<Player
 					key={player.playerID}
 					player={player}
-					onClick={() => {
-						if (props.onClick) {
-							props.onClick(player);
-						}
-					}}
+					onClick={
+						props.onClick
+							? () => {
+									props.onClick?.(player);
+							  }
+							: undefined
+					}
 				/>
 			))}
 		</div>

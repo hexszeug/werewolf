@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import static eu.hexsz.werewolf.api.RequestHandler.*;
@@ -83,18 +84,43 @@ public class Werewolf extends AbstractRole implements NightActive {
                 if (target == currentTarget) {
                     break;
                 }
+
+                Player oldTarget = currentTarget;
                 currentTarget = target;
 
                 /*
                  * Broadcast that you are pointing on the target to all awake and dead players.
                  * */
 
-                Message message = new PlayerUpdateBuilder(target)
-                        .addTag(new WerewolfPointer(player.getPlayerID()))
-                        .build();
+                HashMap<Player, HashSet<Player>> targetWerewolfMap = new HashMap<>();
+                boolean nullTarget = false;
+                for (Player player : playerRegistry) {
+                    if (!(player.getPlayerController() instanceof Werewolf werewolf)
+                            || player.getStatus() != Status.AWAKE) {
+                        continue;
+                    }
+                    if (currentTarget == null) {
+                        nullTarget = true;
+                    }
+                    targetWerewolfMap.computeIfAbsent(werewolf.currentTarget, (key) -> new HashSet<>()).add(player);
+                }
+
+                PlayerUpdateBuilder targetUpdate = new PlayerUpdateBuilder(target);
+                PlayerUpdateBuilder oldTargetUpdate = new PlayerUpdateBuilder(oldTarget);
+                for (Player werewolf : targetWerewolfMap.getOrDefault(target, new HashSet<>())) {
+                    targetUpdate.addTag(new WerewolfPointer(werewolf.getPlayerID()));
+                }
+                for (Player werewolf : targetWerewolfMap.getOrDefault(oldTarget, new HashSet<>())) {
+                    oldTargetUpdate.addTag(new WerewolfPointer(werewolf.getPlayerID()));
+                }
+
+                Message targetMessage = targetUpdate.build();
+                Message oldTargetMessage = oldTargetUpdate.build();
+
                 for (Player player : playerRegistry) {
                     if (player.getStatus() != Status.SLEEPING) {
-                        player.getSession().send(message);
+                        player.getSession().send(oldTargetMessage);
+                        player.getSession().send(targetMessage);
                     }
                 }
 
@@ -103,16 +129,10 @@ public class Werewolf extends AbstractRole implements NightActive {
                  * if all werewolves are pointing on the same target.
                  * */
 
-                HashSet<Player> targets = new HashSet<>();
-                for (Player player : playerRegistry) {
-                    if (player.getPlayerController() instanceof Werewolf werewolf
-                            && player.getStatus() == Status.AWAKE) {
-                        targets.add(werewolf.getCurrentTarget());
-                    }
-                }
-                if (targets.size() != 1) {
+                if (nullTarget || targetWerewolfMap.size() != 1) {
                     break;
                 }
+
                 currentTarget.addTag(new WerewolfVictim());
                 Job phaseJob = null;
                 for (Player player : playerRegistry) {

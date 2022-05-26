@@ -1,11 +1,11 @@
-import Players, { PlayerListType } from '../../players/Players';
+import Players, { PlayerListType } from '../players/Players';
 
 type PropsType = {
 	players: PlayerListType;
 	send: (type: string, data: unknown) => void;
 };
 
-const WerewolfvesView = (props: PropsType) => {
+export const WerewolfvesView = (props: PropsType) => {
 	return (
 		<Players
 			onClick={(player) => {
@@ -15,5 +15,3 @@ const WerewolfvesView = (props: PropsType) => {
 		></Players>
 	);
 };
-
-export default WerewolfvesView;

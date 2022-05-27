@@ -1,35 +1,54 @@
 import './Players.scss';
-import Player, { PlayerType } from './player/Player';
+import Player, { PlayerType, RenderPlayer } from './player/Player';
+import { ObjectMap, ObjectValuesMap } from '../..';
 
-type PlayerListType = {
-	[key: string]: PlayerType;
+export class PlayerList {
+	[key: string]: RenderPlayer;
+
+	constructor(players: { [key: string]: PlayerType }) {
+		Object.assign(
+			this,
+			ObjectMap(players, (value) => [value[0], new RenderPlayer(value[1])]),
+		);
+	}
+
+	get me() {
+		const me = Object.values(this).find((value) => value.isMe);
+		return me ? me : new RenderPlayer({ playerID: '', tags: [] });
+	}
+}
+
+export const PlayerLists = {
+	firstWithTag: (
+		players: PlayerList,
+		pattern: { name: string; [key: string]: any },
+	) => {
+		for (let player of Object.values(players)) {
+			if (player.hasTag(pattern)) return player;
+		}
+		return null;
+	},
 };
 
 type PropsType = {
-	players: PlayerListType;
+	players: PlayerList;
 	onClick?: (player: PlayerType) => void;
 };
 
 const Players = (props: PropsType) => {
-	const players = Object.values(props.players);
-	return (
-		<div className='Players'>
-			{players.map((player) => (
-				<Player
-					key={player.playerID}
-					player={player}
-					onClick={
-						props.onClick
-							? () => {
-									props.onClick?.(player);
-							  }
-							: undefined
-					}
-				/>
-			))}
-		</div>
-	);
+	const players = ObjectValuesMap(props.players, (player) => {
+		player = Object.assign({}, player);
+		if (props.onClick) {
+			player.onClick = props.onClick;
+		}
+		return (
+			<Player
+				key={player.playerID}
+				player={player}
+			/>
+		);
+	});
+	return <div className='Players'>{players}</div>;
 };
 
 export default Players;
-export type { PlayerListType };

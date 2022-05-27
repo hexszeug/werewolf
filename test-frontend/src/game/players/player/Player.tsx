@@ -1,3 +1,4 @@
+import { ObjectValuesMap } from '../../..';
 import './Player.scss';
 
 type PlayerType = {
@@ -7,23 +8,46 @@ type PlayerType = {
 	isMe?: boolean;
 	status?: 'AWAKE' | 'SLEEPING' | 'DEAD';
 	role?: 'WEREWOLF' | 'VILLAGER';
-	tags: {
-		name: string;
-		[key: string]: any;
-	}[];
+	tags: { name: string; [key: string]: any }[];
 };
 
+class RenderPlayer implements PlayerType {
+	playerID: string = '';
+	nickname?: string | undefined;
+	avatar?: string | undefined;
+	isMe?: boolean | undefined;
+	status?: 'AWAKE' | 'SLEEPING' | 'DEAD' | undefined;
+	role?: 'WEREWOLF' | 'VILLAGER' | undefined;
+	tags: { [key: string]: any; name: string }[] = [];
+	onClick?: (player: RenderPlayer) => void;
+
+	constructor(player: PlayerType) {
+		Object.assign(this, player);
+	}
+
+	hasTag(pattern: { name: string; [key: string]: any }) {
+		for (let tag of this.tags) {
+			if (tag.name === pattern.name) return true;
+		}
+		return false;
+	}
+}
+
 type PropsType = {
-	player: PlayerType;
-	onClick?: () => void;
+	player: RenderPlayer;
 };
 
 const Player = (props: PropsType) => {
 	const player = props.player;
 	return (
 		<div
-			className={`Player ${props.onClick ? 'clickable' : ''}`}
-			onClick={props.onClick}
+			className={`Player ${player.onClick ? 'onclick' : ''}`}
+			onClick={
+				player.onClick &&
+				(() => {
+					player.onClick?.(player);
+				})
+			}
 		>
 			<h1>{player.nickname}</h1>
 			<h2>Status: {player.status || 'AWAKE'}</h2>
@@ -39,3 +63,4 @@ const Player = (props: PropsType) => {
 
 export default Player;
 export type { PlayerType };
+export { RenderPlayer };

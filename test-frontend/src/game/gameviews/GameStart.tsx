@@ -1,5 +1,5 @@
-import Players, { PlayerListType } from '../players/Players';
+import Players, { PlayerList } from '../players/Players';
 
-export const GameStartView = (props: { players: PlayerListType }) => {
+export const GameStartView = (props: { players: PlayerList }) => {
 	return <Players players={props.players} />;
 };

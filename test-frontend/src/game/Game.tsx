@@ -1,9 +1,8 @@
 import React from 'react';
 import { MessageHandlerType, MessageType } from '../App';
 import { PlayerType } from './players/player/Player';
-import { PlayerListType } from './players/Players';
 import { Statusbar } from './statusbar/Statusbar';
-import { AccusingView } from './gameviews/Accusing';
+import { AccusingView } from './gameviews/accusing/Accusing';
 import { DeadRevealView } from './gameviews/DeadReveal';
 import { ExecutionView } from './gameviews/Execution';
 import { GameStartView } from './gameviews/GameStart';
@@ -12,6 +11,7 @@ import { SunriseView } from './gameviews/Sunrise';
 import { SunsetView } from './gameviews/Sunset';
 import { WerewolfvesView } from './gameviews/Werewolves';
 import Narrator from './narrator/Narrator';
+import { PlayerList } from './players/Players';
 
 type PhaseType =
 	| 'GAME_START'
@@ -25,12 +25,13 @@ type PhaseType =
 	| null;
 
 type PropsType = {
-	playerID?: string;
 	subscribe: (path: string, recall: MessageHandlerType) => void;
 	send: (path: string, type: string, data: unknown) => void;
 };
 type StateType = {
-	players: PlayerListType;
+	players: {
+		[key: string]: PlayerType;
+	};
 	phase: PhaseType;
 };
 
@@ -49,15 +50,12 @@ class Game extends React.Component<PropsType, StateType> {
 	}
 
 	render() {
-		const players = this.state.players;
+		const players = new PlayerList(this.state.players);
 		const send = (type: string, data: unknown) => {
 			this.props.send('game', type, data);
 		};
 		const gameView = (() => {
-			if (
-				this.props.playerID &&
-				this.state.players[this.props.playerID]?.status === 'SLEEPING'
-			) {
+			if (players.me.status === 'SLEEPING') {
 				return (
 					<div>
 						<h1>Sleeping through this night</h1>
@@ -80,7 +78,12 @@ class Game extends React.Component<PropsType, StateType> {
 				case 'DEAD_REVEAL':
 					return <DeadRevealView players={players} />;
 				case 'ACCUSING':
-					return <AccusingView players={players} />;
+					return (
+						<AccusingView
+							players={players}
+							send={send}
+						/>
+					);
 				case 'JUDGING':
 					return <JudgingView players={players} />;
 				case 'EXECUTION':
@@ -100,18 +103,19 @@ class Game extends React.Component<PropsType, StateType> {
 			<div>
 				<Narrator phase={this.state.phase} />
 				{gameView}
-				{this.props.playerID && (
-					<Statusbar player={players[this.props.playerID]} />
-				)}
+				<Statusbar player={players.me} />
 			</div>
 		);
 	}
 
 	handleMessage(msg: MessageType) {
 		switch (msg.type) {
+			case 'phase':
+				const phase = msg.data as PhaseType;
+				this.setState({ phase: phase });
+				break;
 			case 'player':
 				const player = msg.data as PlayerType;
-				console.log(player);
 				this.setState((prevState) => ({
 					players: {
 						...prevState.players,
@@ -121,11 +125,6 @@ class Game extends React.Component<PropsType, StateType> {
 						},
 					},
 				}));
-				break;
-			case 'phase':
-				const phase = msg.data as PhaseType;
-				this.setState({ phase: phase });
-				console.log(phase);
 				break;
 		}
 	}

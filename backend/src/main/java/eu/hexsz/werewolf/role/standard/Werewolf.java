@@ -81,6 +81,12 @@ public class Werewolf extends AbstractRole implements NightActive {
                             request
                     );
                 }
+                if (target.getStatus() == Status.DEAD) {
+                    throw new IllegalRequestException(
+                            "Targeted player is already dead.",
+                            request
+                    );
+                }
                 if (target == currentTarget) {
                     break;
                 }
@@ -99,7 +105,7 @@ public class Werewolf extends AbstractRole implements NightActive {
                             || player.getStatus() != Status.AWAKE) {
                         continue;
                     }
-                    if (currentTarget == null) {
+                    if (werewolf.currentTarget == null) {
                         nullTarget = true;
                     }
                     targetWerewolfMap.computeIfAbsent(werewolf.currentTarget, (key) -> new HashSet<>()).add(player);

@@ -1,7 +1,7 @@
-import Players, { PlayerListType } from '../players/Players';
+import Players, { PlayerList } from '../players/Players';
 
 type PropsType = {
-	players: PlayerListType;
+	players: PlayerList;
 	send: (type: string, data: unknown) => void;
 };
 

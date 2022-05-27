@@ -1,0 +1,49 @@
+.AccusingView {
+	.Hand,
+	.Done {
+		position: fixed;
+		height: 10rem;
+		width: 10rem;
+		font-size: 3rem;
+		cursor: pointer;
+		border: 0;
+		border-radius: 1rem;
+		background-color: #c7c7c7;
+		transition: transform 200ms ease;
+
+		&:hover {
+			transform: scale(1.1);
+		}
+	}
+
+	.Hand {
+		bottom: 2rem;
+		right: 2rem;
+	}
+
+	.Done {
+		bottom: 2rem;
+		left: 2rem;
+	}
+
+	.Discussion {
+		position: fixed;
+		top: 40%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 60vw;
+		height: 60vh;
+		background-color: #c7c7c757;
+		border-radius: 2rem;
+		padding: 3rem 10rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		* {
+			background-color: #c7c7c7da;
+			padding: 1em;
+			border-radius: 0.2rem;
+		}
+	}
+}

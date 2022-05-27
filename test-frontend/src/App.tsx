@@ -1,6 +1,5 @@
 import React from 'react';
 import Game from './game/Game';
-import { PlayerType } from './game/players/player/Player';
 
 type MessageType = {
 	type: string;
@@ -15,7 +14,6 @@ type StateType = {
 
 class App extends React.Component<PropsType, StateType> {
 	websocket!: WebSocket;
-	playerID?: string;
 	subscribedMessageHandlers: {
 		[key: string]: MessageHandlerType;
 	} = {};
@@ -52,7 +50,6 @@ class App extends React.Component<PropsType, StateType> {
 			return (
 				<div>
 					<Game
-						playerID={this.playerID}
 						subscribe={this.subscribe}
 						send={this.send}
 					/>
@@ -74,10 +71,11 @@ class App extends React.Component<PropsType, StateType> {
 	}
 
 	handleMessage(message: string) {
-		const [path, type, rawData] = JSON.parse(message);
-		const data = rawData as PlayerType;
-		if (data.isMe) {
-			this.playerID = data.playerID;
+		const [path, type, data] = JSON.parse(message);
+		if (type === 'error') {
+			alert(data.name + ': ' + data.message);
+			console.error(data);
+			return;
 		}
 		this.setState({ phase: path });
 		this.subscribedMessageHandlers[path]?.({ type, data });
